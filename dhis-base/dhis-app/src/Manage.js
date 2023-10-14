@@ -57,6 +57,7 @@ export function Manage() {
       if (matchingDataValue) {
         return {
           ...commodity,
+          name: commodity.name.replace("Commodities - ", ""),
           value: matchingDataValue.value
         };
       } else {
