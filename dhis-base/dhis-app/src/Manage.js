@@ -26,10 +26,11 @@ const query = {
       ]
     },
   }
-}
+};
 
 export function Manage() {
   const { loading, error, data } = useDataQuery(query)
+  var [mergedData, setMergedData] = useState(null);
 
   if (error) {
     return <span>ERROR: {error.message}</span>
@@ -40,18 +41,59 @@ export function Manage() {
   }
 
   if (data) {
-    //console.log("RESPONSE: " + JSON.stringify(data))
-    //console.log("\ndatasets: " + JSON.stringify(data["dataSetElements"]))
-
     const commodities = data.dataSets.dataSetElements.map(dataElement => ({
       id: dataElement.dataElement.id,
       name: dataElement.dataElement.name
     }));
 
-    // TODO: Find, extract, match, and map values before displaying them.
+    const details = data.dataValueSets.dataValues.map(dataElement => ({
+      dataElement: dataElement.dataElement,
+      value: dataElement.value
+    }));
 
-    console.log(commodities)
+    mergedData = commodities.map(commodity => {
+      const matchingDataValue = details.find(detailsItem => detailsItem.dataElement === commodity.id);
+  
+      if (matchingDataValue) {
+        return {
+          ...commodity,
+          value: matchingDataValue.value
+        };
+      } else {
+        return {
+          ...commodity,
+          value: 0 // Set a default value if there's no matching dataValue
+        };
+      }
+    });
+  
+    console.log(mergedData);
   }
 
-  return <h1>Manage</h1>;
+  return (
+    <div>
+      <h1>Commodities</h1>
+      <div className="controls">
+
+      </div>
+      <div className="table">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><b>Name</b></TableCell>
+              <TableCell><b>ID</b></TableCell>
+              <TableCell><b>Quantity</b></TableCell>
+            </TableRow>
+            {mergedData.map(commodity => (
+              <TableRow key={commodity.id}>
+                <TableCell>{commodity.name}</TableCell>
+                <TableCell>{commodity.id}</TableCell>
+                <TableCell>{commodity.value}</TableCell>
+            </TableRow>
+            ))}
+          </TableHead>
+        </Table>
+      </div>
+    </div>
+  )
 }
