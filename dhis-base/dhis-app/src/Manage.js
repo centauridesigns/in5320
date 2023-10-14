@@ -22,7 +22,7 @@ const query = {
       dataSet: 'ULowA8V3ucd',
       fields: [
         'dataElement', // Data element so we can match items from dataSets with items from dataValueSets
-        'dataValues[value]', // Extract value (number of items), unknown if this is the actual number?
+        'dataValues[value]', // Extract value (number of items)
       ]
     },
   }
@@ -30,7 +30,7 @@ const query = {
 
 export function Manage() {
   const { loading, error, data } = useDataQuery(query)
-  var [mergedData, setMergedData] = useState(null);
+  var [mergedData, setMergedData] = useState(null); // Define the mergedData publicly, allowing us to access it later at any time
 
   if (error) {
     return <span>ERROR: {error.message}</span>
@@ -41,17 +41,17 @@ export function Manage() {
   }
 
   if (data) {
-    const commodities = data.dataSets.dataSetElements.map(dataElement => ({
+    const commodities = data.dataSets.dataSetElements.map(dataElement => ({ // Data on commodities for table
       id: dataElement.dataElement.id,
       name: dataElement.dataElement.name
     }));
 
-    const details = data.dataValueSets.dataValues.map(dataElement => ({
+    const details = data.dataValueSets.dataValues.map(dataElement => ({ // Data on details for table, including the dataElement (ID) for merging
       dataElement: dataElement.dataElement,
       value: dataElement.value
     }));
 
-    mergedData = commodities.map(commodity => {
+    mergedData = commodities.map(commodity => { // Merging and mapping data so as to ensure one unified API response for later development
       const matchingDataValue = details.find(detailsItem => detailsItem.dataElement === commodity.id);
   
       if (matchingDataValue) {
@@ -71,12 +71,12 @@ export function Manage() {
   }
 
   return (
-    <div>
+    <div> {/*Complete page*/}
       <h1>Commodities</h1>
-      <div className="controls">
+      <div className="controls"> {/*Controls within the page*/}
 
       </div>
-      <div className="table">
+      <div className="table"> {/*Table within the page */}
         <Table>
           <TableHead>
             <TableRow>
@@ -84,8 +84,9 @@ export function Manage() {
               <TableCell><b>ID</b></TableCell>
               <TableCell><b>Quantity</b></TableCell>
             </TableRow>
-            {mergedData.map(commodity => (
-              <TableRow key={commodity.id}>
+            {/*Mapping of commodities using the mergedData*/}
+            {mergedData.map(commodity => ( 
+              <TableRow key={commodity.id}> 
                 <TableCell>{commodity.name}</TableCell>
                 <TableCell>{commodity.id}</TableCell>
                 <TableCell>{commodity.value}</TableCell>
