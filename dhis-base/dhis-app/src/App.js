@@ -24,7 +24,8 @@ const query = {
   dataValueSets: {
     resource: "/dataValueSets/",
     params: { // Related parameters to sen
-      orgUnit: 'KiheEgvUZ0i',
+      orgUnit: 'KiheEgvUZ0i', // Random organizational unit
+      // orgUnit: 'ImspTQPwCqd', // Organizational unit belonging to John Abel
       period: '202310',
       dataSet: 'ULowA8V3ucd',
       fields: [
@@ -32,6 +33,9 @@ const query = {
         'dataValues[value]', // Extract value (number of items)
       ]
     },
+  },
+  sections: {
+    resource: "/sections/"
   }
 };
 

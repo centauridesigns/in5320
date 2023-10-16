@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Table, TableHead, TableBody, TableRow, TableCell } from "@dhis2/ui";
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu} from "@dhis2/ui";
 import { Input } from '@dhis2-ui/input'
+import "./Commodities.css";
 
 export function Commodities(props) {
   const { mergedData } = props;
@@ -36,13 +37,20 @@ export function Commodities(props) {
       <h1>Commodities</h1>
       <div className="controls"> {/*Controls within the page*/}
         {/* Search Input */}
-        <Input
-          name="defaultName"
+        <Input className="searchbar"
+          name="searchBar"
           type="text"
           placeholder="Name"
           value={searchTerm}
           onChange={handleSearchChange}
         />
+        <DropdownButton className="dropdown"
+          component={<FlyoutMenu></FlyoutMenu>}
+          name="dropDown"
+          value="dropDownValue"
+        >
+          Category
+        </DropdownButton>
       </div>
       <div className="table"> {/*Table within the page */}
         <Table>
