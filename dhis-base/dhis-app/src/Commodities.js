@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Table, TableHead, TableRow, TableCell } from "@dhis2/ui";
+import { Table, TableHead, TableBody, TableRow, TableCell } from "@dhis2/ui";
+import { Input } from '@dhis2-ui/input'
 
 export function Commodities(props) {
   const { mergedData } = props;
-  console.log("mergeddata in manage: ", mergedData);
 
   // Define search variable and state for filtered data
   const [searchTerm, setSearchTerm] = useState("");
@@ -11,7 +11,7 @@ export function Commodities(props) {
 
   // Create Handler for search
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.value);
   };
 
   // This effect will run whenever there's a change in the search input.
@@ -36,9 +36,10 @@ export function Commodities(props) {
       <h1>Commodities</h1>
       <div className="controls"> {/*Controls within the page*/}
         {/* Search Input */}
-        <input
+        <Input
+          name="defaultName"
           type="text"
-          placeholder="Search by name"
+          placeholder="Name"
           value={searchTerm}
           onChange={handleSearchChange}
         />
@@ -52,14 +53,16 @@ export function Commodities(props) {
               <TableCell><b>Quantity</b></TableCell>
             </TableRow>
           </TableHead>
-          {/*Mapping of commodities using the filteredData*/}
-          {filteredData.map(commodity => ( 
-            <TableRow key={commodity.id}> 
-              <TableCell>{commodity.name}</TableCell>
-              <TableCell>{commodity.id}</TableCell>
-              <TableCell>{commodity.value}</TableCell>
-            </TableRow>
+          <TableBody>
+            {/*Mapping of commodities using the filteredData*/}
+            {filteredData.map(commodity => ( 
+              <TableRow key={commodity.id}> 
+                <TableCell>{commodity.name}</TableCell>
+                <TableCell>{commodity.id}</TableCell>
+                <TableCell>{commodity.value}</TableCell>
+              </TableRow>
           ))}
+          </TableBody>
         </Table>
       </div>
     </div>
