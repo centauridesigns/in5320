@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDataQuery } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableCell } from "@dhis2/ui";
 
-export function Manage(props) {
+export function Commodities(props) {
   const { mergedData } = props;
   console.log("mergeddata in manage: ", mergedData)
   

@@ -4,7 +4,7 @@ import classes from "./App.module.css";
 import { Dashboard } from "./Dashboard";
 import { Navigation } from "./Navigation";
 import { Datasets } from "./Datasets";
-import { Manage } from "./Manage";
+import { Commodities } from "./Commodities";
 import { Dispense } from "./Dispense";
 
 import { useDataQuery } from '@dhis2/app-runtime'
@@ -96,7 +96,7 @@ function MyApp() {
       </div>
       <div className={classes.right}>
         {activePage === "Dashboard" && <Dashboard/>}
-        {activePage === "Manage" && <Manage mergedData={mergedData}/>}
+        {activePage === "Commodities" && <Commodities mergedData={mergedData}/>}
         {activePage === "Dispense" && <Dispense mergedData={mergedData}/>}
         {activePage === "Datasets" && <Datasets />}
       </div>
