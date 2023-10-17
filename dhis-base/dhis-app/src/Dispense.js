@@ -9,12 +9,28 @@ export function Dispense(props) {
     const { mergedData } = props;
     const [entries, setEntries] = useState([]);
 
+        useEffect(() => {
+        console.log("Saved commodities:", entries);
+    }, [entries]);
+
+    // Handles addition of new input fields. The ID is the current date to ensure no duplicate keys.
     const handleAddEntry = () => {
         setEntries(prevEntries => [...prevEntries, { id: Date.now(), amount: 0, commodity: "" }]);
     };
 
+    // Handles removal of existing input fields.
     const handleRemoveEntry = (id) => {
         setEntries(prevEntries => prevEntries.filter(entry => entry.id !== id));
+    };
+
+    // Handles input fields. When a commodity is deselected, subsequent input fields are allowed to contain said commodity.
+    const handleCommodityChange = (id, commodityId, amount) => {
+        setEntries(prevEntries => prevEntries.map(entry => {
+            if (entry.id === id) {
+                return { ...entry, commodity: commodityId, amount: amount };
+            }
+            return entry;
+        }));
     };
 
     return(
@@ -24,8 +40,10 @@ export function Dispense(props) {
                 {entries.map(entry => (
                     <NewEntry
                         key={entry.id}
+                        id={entry.id}
                         mergedData={mergedData}
                         onRemove={() => handleRemoveEntry(entry.id)}
+                        onCommodityChange={handleCommodityChange}
                     />
                 ))}
                 <Button className="remove-button" type="button" onClick={handleAddEntry}><IconAdd24/></Button>
@@ -34,19 +52,18 @@ export function Dispense(props) {
     )
 }
 
-
-function NewEntry({mergedData, onRemove}){
+function NewEntry({id, mergedData, onRemove, onCommodityChange}){
     const [amount, setAmount] = useState(0);
     const [selectedCommodity, setSelectedCommodity] = useState("");
 
     const handleSelectChange = (value) => {
         setSelectedCommodity(value);
-        console.log("selected value: ", value.selected);
+        onCommodityChange(id, value, amount);
     };
 
-    const handleAmountChange = (amount) => {
-        setAmount(amount);
-        console.log("selected amount: ", amount.value);
+    const handleAmountChange = (event) => {
+        setAmount(event.value);
+        onCommodityChange(id, selectedCommodity, event.value);
     };
 
     return (
@@ -56,8 +73,8 @@ function NewEntry({mergedData, onRemove}){
                     <SingleSelect className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity.selected}>
                         {mergedData.map((commodity) => 
                             <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
-                        )
-                    }</SingleSelect>
+                        )}
+                    </SingleSelect>
                 </div>
                 <div className="amount">
                     <Input className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
