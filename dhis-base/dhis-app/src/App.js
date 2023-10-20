@@ -24,8 +24,8 @@ const query = {
   dataValueSets: {
     resource: "/dataValueSets/",
     params: { // Related parameters to sen
-      orgUnit: 'KiheEgvUZ0i', // Random organizational unit
-      // orgUnit: 'ImspTQPwCqd', // Organizational unit belonging to John Abel
+      orgUnit: 'XtuhRhmbrJM', // The orgunit id assigned to our group
+      // for testing - orgUnit: 'ImspTQPwCqd', // Organizational unit belonging to John Abel
       period: '202310',
       dataSet: 'ULowA8V3ucd',
       fields: [
@@ -36,7 +36,20 @@ const query = {
   },
   sections: {
     resource: "/sections/"
-  }
+  },
+  localUsers: {
+    resource: "/users",
+    params: {
+        paging: "false",
+        userOrgUnits: true
+    }
+  },
+  allUsers: {
+      resource: "/users",
+      params: {
+          paging: "false",
+      }
+  },
 };
 
 function MyApp() {
@@ -55,6 +68,9 @@ function MyApp() {
         dataElement: dataElement.dataElement,
         value: dataElement.value,
       }));
+
+      console.log("local users: ", data.localUsers);
+      console.log("all users: ", data.allUsers);
 
       const merge = commodities.map(commodity => {
         const matchingDataValue = details.find(detailsItem => detailsItem.dataElement === commodity.id);

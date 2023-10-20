@@ -1,15 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { useDataQuery } from '@dhis2/app-runtime'
+import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button} from "@dhis2/ui";
 import { IconCross24, IconAdd24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
+import { postDispenseTransaction} from "./api.js";
+
+const request = {
+    dataSet: "ULowA8V3ucd",
+    resource:"/dataValueSets/",
+    completeDate: "2023-10-19",   //dateIso
+    type: "create",
+    data: {
+       orgUnit: "XtuhRhmbrJM",
+       period: "202310",    //period
+       //have to map later
+       dataValues: [
+           {
+           dataElement: "Boy3QwztgeZ",  //commodityId
+           categoryOptionCombo: "J2Qf1jtZuj8",
+           value: "33"  //amount 
+            }
+        ]
+    }
+}
 
 
 export function Dispense(props) {
+    const [mutate, { mutateLoading, mutateError }] = useDataMutation(
+        postDispenseTransaction()
+    );
     const { mergedData } = props;
-    const [entries, setEntries] = useState([]);
+    const [entries, setEntries] = useState([{
+        id: Date.now(), amount: 0, commodity: ""
+    }]);
+    const [dispenseTransactionArray, setDispenseTransactionArray] = useState([])
 
-        useEffect(() => {
+    useEffect(() => {
         console.log("Saved commodities:", entries);
     }, [entries]);
 
@@ -36,7 +62,7 @@ export function Dispense(props) {
     return(
         <div>
             <h1>Dispense</h1>
-            <div>
+            <div className="commodity-controls">
                 {entries.map(entry => (
                     <NewEntry
                         key={entry.id}
@@ -46,7 +72,25 @@ export function Dispense(props) {
                         onCommodityChange={handleCommodityChange}
                     />
                 ))}
-                <Button className="remove-button" type="button" onClick={handleAddEntry}><IconAdd24/></Button>
+                <Button className="add-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add commodity</Button>
+                <p className="desc">Click on this button to add another commodity to this transaction</p>
+            </div>
+            <div className="recipient-controls">
+                <Button className="testing" type="button" onClick={(e) => {
+                    setDispenseTransactionArray([{
+                        categoryOptionCombo: "J2Qf1jtZuj8",
+                        dataElement: ""
+                    }])
+
+                    mutate({
+                        dispenseMutation: dispenseTransactionArray,
+                    }).then(function (response) {
+                            if (response.response.status !== "SUCCESS") {
+                                success = false
+                                console.log(response);
+                            }
+                    })
+                }}>Post</Button>
             </div>
         </div>
     )
@@ -57,8 +101,8 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange}){
     const [selectedCommodity, setSelectedCommodity] = useState("");
 
     const handleSelectChange = (value) => {
-        setSelectedCommodity(value);
-        onCommodityChange(id, value, amount);
+        setSelectedCommodity(value.selected);
+        onCommodityChange(id, value.selected, amount);
     };
 
     const handleAmountChange = (event) => {
@@ -69,18 +113,29 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange}){
     return (
         <div>
             <div className="controls">
-                <div className="small-dropdown">
-                    <SingleSelect className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity.selected}>
-                        {mergedData.map((commodity) => 
-                            <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
-                        )}
-                    </SingleSelect>
+                <div className="section">
+                    <p className="title">Commodity</p>
+                    <div className="small-dropdown">
+                        <SingleSelect className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
+                            {mergedData.map((commodity) => 
+                                <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
+                            )}
+                        </SingleSelect>
+                    </div>
+                    <p className="desc">Select the commodity you want to dispense</p>
                 </div>
-                <div className="amount">
-                    <Input className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+                <div className="section">
+                    <p className="title">Quantity</p>
+                    <div className="amount">
+                        <Input className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+                    </div>
+                    <p className="desc">Write or add the amount of packages you want to dispense</p>
                 </div>
                 <div>
-                    <Button className="add-button" type="button" onClick={onRemove}><IconCross24/></Button>
+                    <div className="empty-title"></div>
+                    <div>
+                        <Button className="remove-button" type="button" onClick={onRemove}><IconCross24/></Button>
+                    </div>
                 </div>
             </div>
         </div>

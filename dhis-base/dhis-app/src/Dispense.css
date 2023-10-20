@@ -1,7 +1,21 @@
-.small-dropdown, .amount {
+.section{
     flex: 1;
 }
 
-.add-button {
+.remove-button {
     flex: 0;
+}
+
+.empty-title{
+    height: 5px;
+}
+
+.title{
+    font-size: 17px;
+    margin-bottom: 0px;
+}
+
+.desc{
+    margin-top: 2px;
+    font-size: 14px;
 }
