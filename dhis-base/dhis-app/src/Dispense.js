@@ -1,28 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar} from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal} from "@dhis2/ui";
 import { IconCross24, IconAdd24 , IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
-import { postDispenseTransaction} from "./api.js";
-
-const request = {
-    dataSet: "ULowA8V3ucd",
-    resource:"/dataValueSets/",
-    completeDate: "2023-10-19",   //dateIso
-    type: "create",
-    data: {
-       orgUnit: "XtuhRhmbrJM",
-       period: "202310",    //period
-       //have to map later
-       dataValues: [
-           {
-           dataElement: "Boy3QwztgeZ",  //commodityId
-           categoryOptionCombo: "J2Qf1jtZuj8",
-           value: "33"  //amount 
-            }
-        ]
-    }
-}
+import { getUsers, postDispenseTransaction} from "./api.js";
 
 
 export function Dispense(props) {
@@ -35,16 +16,15 @@ export function Dispense(props) {
     }]);
     const [commodityConsumptionArr, setCommodityConsumptionArr] = useState([]);
     const [commodityTotalAmountArr, setCommodityTotalAmountArr] = useState([]);
-
-    useEffect(() => {
-        console.log("Saved commodities:", entries);
-    }, [entries]);
+    const { loading, error, data } = useDataQuery(getUsers());
+    const [dispenser, setDispenser] = useState("");
+    const [recipient, setRecipient] = useState("");
 
     // Handles addition of new input fields. The ID is the current date to ensure no duplicate keys.
     const handleAddEntry = () => {
         setEntries(prevEntries => [...prevEntries, { id: Date.now(), amount: 0, commodity: "" }]);
     };
-
+    
     // Handles removal of existing input fields.
     const handleRemoveEntry = (commodity) => {
         const id = commodity.id
@@ -52,11 +32,11 @@ export function Dispense(props) {
         setCommodityConsumptionArr(prevEntries => prevEntries.filter(entry => entry.dataElement !== commodity.commodity));
         setCommodityTotalAmountArr(prevEntries => prevEntries.filter(entry => entry.dataElement !== commodity.commodity));
     };
-
+    
     // Handles input fields. When a commodity is deselected, subsequent input fields are allowed to contain said commodity.
     const handleCommodityChange = (id, commodityId, amount) => {
         if (!commodityId || amount === 0 || amount === "") {}
-
+        
         else {
             setEntries(prevEntries => prevEntries.map(entry => {
                 if (entry.id === id) {
@@ -65,9 +45,8 @@ export function Dispense(props) {
                 return entry;
             }));
         }
-
     };
-
+    
     // Handles confirmation of entry
     const handleConfirmEntry = (entry) => {
         if (!entry.commodity || entry.amount === 0 || entry.amount === "") {}
@@ -80,14 +59,14 @@ export function Dispense(props) {
                 value: entry.amount
             }])
         }
-
+        
         let oldValue = 0;
         mergedData.map((c) => {
             if (c.id == entry.commodity){
                 oldValue = c.value
             }
         })
-
+        
         setCommodityTotalAmountArr([...commodityTotalAmountArr, {
             categoryOptionCombo: "J2Qf1jtZuj8",
             dataElement: entry.commodity,
@@ -96,40 +75,72 @@ export function Dispense(props) {
             value: oldValue - entry.amount
         }])
     };
+    
+    useEffect(() => {
+        console.log("Saved commodities:", entries);
+    }, [entries]);
 
-
-    return(
-        <div>
-            {<h1>Dispense</h1>}
-            <div className="commodity-controls">
-                {entries.map((entry, index) => (
-                    <NewEntry
-                        key={entry.id}
-                        index={index}
-                        id={entry.id}
-                        mergedData={mergedData}
-                        onRemove={() => handleRemoveEntry(entry)}
-                        onCommodityChange={handleCommodityChange}
-                        onConfirm={() => handleConfirmEntry(entry)}
-                    />
-                ))}
-                <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add Commodity</Button>
-                <p className="desc">Add a commodity using this button.</p>
+    if (data){
+        return(
+            <div>
+                {<h1>Dispense</h1>}
+                <div className="commodity-controls">
+                    {entries.map((entry, index) => (
+                        <NewEntry
+                            key={entry.id}
+                            index={index}
+                            id={entry.id}
+                            mergedData={mergedData}
+                            onRemove={() => handleRemoveEntry(entry)}
+                            onCommodityChange={handleCommodityChange}
+                            onConfirm={() => handleConfirmEntry(entry)}
+                        />
+                    ))}
+                    <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add Commodity</Button>
+                    <p className="desc">Add a commodity using this button.</p>
+                </div>
+                
+                {/*Dispenser and recipient select */}
+                <div className="controls">
+                    <div className="section">
+                        <h4 className="title">Dispenser</h4>
+                        <div className="small-dropdown">
+                            <SingleSelect className="select" placeholder="Name of dispenser" onChange={e => setDispenser(e.selected)} selected={dispenser}>
+                                {data.localUsers.users.map((user) => 
+                                    <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
+                                )}
+                            </SingleSelect>
+                        </div>
+                        <p className="desc">Select the person dispensing.</p>
+                    </div>
+                    <div className="section">
+                        <h4 className="title">Recipient</h4>
+                        <div className="small-dropdown">
+                            <SingleSelect className="select" placeholder="Name of recipient" onChange={e => setRecipient(e.selected)} selected={recipient}>
+                                {data.allUsers.users.map((user) => 
+                                    <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
+                                )}
+                            </SingleSelect>
+                        </div>
+                        <p className="desc">Select the person receiving.</p>
+                    </div>
+                </div>
+    
+                <div className="recipient-controls">
+                    <Button large primary className="icon-button" type="button" onClick={(e) => {
+                        mutate({
+                            dispenseMutation: commodityTotalAmountArr,
+                        }).then(function (response) {
+                                if (response.response.status !== "SUCCESS") {
+                                    success = false
+                                    console.log(response);
+                                }
+                        })
+                    }}><IconCheckmarkCircle24/>Verify Selection</Button>
+                </div>
             </div>
-            <div className="recipient-controls">
-                <Button primary className="icon-button" type="button" onClick={(e) => {
-                    mutate({
-                        dispenseMutation: commodityTotalAmountArr,
-                    }).then(function (response) {
-                            if (response.response.status !== "SUCCESS") {
-                                success = false
-                                console.log(response);
-                            }
-                    })
-                }}><IconCheckmarkCircle24/>Verify Selection</Button>
-            </div>
-        </div>
-    )
+        )
+    }
 }
 
 function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm}){
@@ -198,8 +209,8 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                 </div>
 
                 <div className="button-section">
-                    {buttonVisible && (<Button className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
-                    <Button className="controls-button" type="button" onClick={onRemove}><IconCross24/></Button>
+                    {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
+                    <Button destructive className="controls-button" type="button" onClick={onRemove}><IconCross24/></Button>
                 </div>
             </div>
         </div>

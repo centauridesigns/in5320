@@ -27,6 +27,7 @@
 
 .controls-button {
     margin-bottom: 5px;
+    margin-left: 5px;
 }
 
 .input-button-wrapper {
@@ -36,4 +37,8 @@
 
 .icon-button {
     gap: 10px;
+}
+
+.commodity-controls{
+    margin-bottom: 100px;
 }
