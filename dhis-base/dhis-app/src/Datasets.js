@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from "react";
 import { useDataQuery } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableCell } from "@dhis2/ui";
-import "./Datasets.css";
 
 //the apirequest
 const request = {

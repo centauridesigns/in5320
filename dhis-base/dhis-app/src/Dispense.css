@@ -6,16 +6,30 @@
     flex: 0;
 }
 
-.empty-title{
+.empty-title {
     height: 5px;
 }
 
-.title{
+.title {
     font-size: 17px;
-    margin-bottom: 0px;
+    margin-bottom: 10px;
+    margin-top: 0px;
 }
 
-.desc{
-    margin-top: 2px;
+.desc {
+    margin-top: 5px;
     font-size: 14px;
+}
+
+.controls {
+    align-items:center;
+}
+
+.input-button-wrapper {
+    flex: 1;
+    align-items: center; /* vertical alignment */
+}
+
+.icon-button {
+    gap: 10px;
 }

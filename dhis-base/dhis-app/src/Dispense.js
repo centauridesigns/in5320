@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button} from "@dhis2/ui";
-import { IconCross24, IconAdd24 , IconCheckmark24} from "@dhis2/ui-icons"
+import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar} from "@dhis2/ui";
+import { IconCross24, IconAdd24 , IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { postDispenseTransaction} from "./api.js";
 
@@ -55,23 +55,31 @@ export function Dispense(props) {
 
     // Handles input fields. When a commodity is deselected, subsequent input fields are allowed to contain said commodity.
     const handleCommodityChange = (id, commodityId, amount) => {
-        setEntries(prevEntries => prevEntries.map(entry => {
-            if (entry.id === id) {
-                return { ...entry, commodity: commodityId, amount: amount };
-            }
-            return entry;
-        }));
+        if (!commodityId || amount === 0 || amount === "") {}
+
+        else {
+            setEntries(prevEntries => prevEntries.map(entry => {
+                if (entry.id === id) {
+                    return { ...entry, commodity: commodityId, amount: amount };
+                }
+                return entry;
+            }));
+        }
+
     };
 
     // Handles confirmation of entry
     const handleConfirmEntry = (entry) => {
-        setCommodityConsumptionArr([...commodityConsumptionArr, {
-            categoryOptionCombo: "J2Qf1jtZuj8",
-            dataElement: entry.commodity,
-            period: "202310", 
-            orgUnit: "XtuhRhmbrJM",
-            value: entry.amount
-        }])
+        if (!entry.commodity || entry.amount === 0 || entry.amount === "") {}
+        else {
+            setCommodityConsumptionArr([...commodityConsumptionArr, {
+                categoryOptionCombo: "J2Qf1jtZuj8",
+                dataElement: entry.commodity,
+                period: "202310", 
+                orgUnit: "XtuhRhmbrJM",
+                value: entry.amount
+            }])
+        }
 
         let oldValue = 0;
         mergedData.map((c) => {
@@ -92,11 +100,12 @@ export function Dispense(props) {
 
     return(
         <div>
-            <h1>Dispense</h1>
+            {<h1>Dispense</h1>}
             <div className="commodity-controls">
-                {entries.map(entry => (
+                {entries.map((entry, index) => (
                     <NewEntry
                         key={entry.id}
+                        index={index}
                         id={entry.id}
                         mergedData={mergedData}
                         onRemove={() => handleRemoveEntry(entry)}
@@ -104,11 +113,11 @@ export function Dispense(props) {
                         onConfirm={() => handleConfirmEntry(entry)}
                     />
                 ))}
-                <Button className="add-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add commodity</Button>
-                <p className="desc">Click on this button to add another commodity to this transaction</p>
+                <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add Commodity</Button>
+                <p className="desc">Add a commodity using this button.</p>
             </div>
             <div className="recipient-controls">
-                <Button className="testing" type="button" onClick={(e) => {
+                <Button primary className="icon-button" type="button" onClick={(e) => {
                     mutate({
                         dispenseMutation: commodityTotalAmountArr,
                     }).then(function (response) {
@@ -117,17 +126,18 @@ export function Dispense(props) {
                                 console.log(response);
                             }
                     })
-                }}>Verify</Button>
+                }}><IconCheckmarkCircle24/>Verify Selection</Button>
             </div>
         </div>
     )
 }
 
-function NewEntry({id, mergedData, onRemove, onCommodityChange, onConfirm}){
+function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm}){
     const [amount, setAmount] = useState(0);
     const [selectedCommodity, setSelectedCommodity] = useState("");
     const [inputDisabled, setInputDisabled] = useState(false)
     const [buttonVisible, setButtonVisible] = useState(true)
+    const [showAlert, setShowAlert] = useState(false);
 
     const handleSelectChange = (value) => {
         setSelectedCommodity(value.selected);
@@ -140,6 +150,11 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange, onConfirm}){
     };
 
     const handleConfirm = () => {
+        if (!selectedCommodity || amount === 0 || amount === "") {
+            setShowAlert(true);
+            return;
+        }
+
         setInputDisabled(true);
         setButtonVisible(false);
         onConfirm();
@@ -147,31 +162,44 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange, onConfirm}){
 
     return (
         <div>
+            {showAlert && (
+                <AlertBar
+                    duration={200}
+                    onHidden={() => setShowAlert(false)}
+                    critical>
+                    Please select a commodity and specify an amount.
+                </AlertBar>
+            )}
             <div className="controls">
                 <div className="section">
-                    <p className="title">Commodity</p>
-                    <div className="small-dropdown">
-                        <SingleSelect disabled={inputDisabled} className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
-                            {mergedData.map((commodity) => 
-                                <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
-                            )}
-                        </SingleSelect>
+                    {index === 0 && <h4 className="title">Commodity</h4>}
+                    {index > 0 && <h4 className="title">‎</h4>} 
+                    <div className="input-button-wrapper">
+                        <div className="small-dropdown">
+                            <SingleSelect disabled={inputDisabled} className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
+                                {mergedData.map((commodity) => 
+                                    <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
+                                )}
+                            </SingleSelect>
+                        </div>
                     </div>
-                    <p className="desc">Select the commodity you want to dispense</p>
+                    <p className="desc">Select a commodity to dispense.</p>
                 </div>
+
                 <div className="section">
-                    <p className="title">Quantity</p>
-                    <div className="amount">
-                        <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+                    {index === 0 && <h4 className="title">Quantity</h4>}
+                    {index > 0 && <h4 className="title">‎</h4>} 
+                    <div className="input-button-wrapper">
+                        <div className="amount">
+                            <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+                        </div>
                     </div>
-                    <p className="desc">Write or add the amount of packages you want to dispense</p>
+                    <p className="desc">Write or add the amount of packages you would like to dispense.</p>
                 </div>
-                <div>
-                    <div className="empty-title"></div>
-                    <div>
-                        {buttonVisible && (<Button className="confirm-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
-                        <Button className="remove-button" type="button" onClick={onRemove}><IconCross24/></Button>
-                    </div>
+
+                <div className="button-section">
+                    {buttonVisible && (<Button className="confirm-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
+                    <Button className="remove-button" type="button" onClick={onRemove}><IconCross24/></Button>
                 </div>
             </div>
         </div>
