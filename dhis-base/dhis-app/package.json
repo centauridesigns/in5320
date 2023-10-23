@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@dhis2/app-runtime": "^3.9.4",
-    "@dhis2/ui": "^8.14.9"
+    "@dhis2/ui": "^8.14.9",
+    "toastify-js": "^1.12.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",

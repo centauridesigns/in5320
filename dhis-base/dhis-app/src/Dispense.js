@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal} from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip} from "@dhis2/ui";
 import { IconCross24, IconAdd24 , IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { getUsers, postDispenseTransaction} from "./api.js";
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 
 
 export function Dispense(props) {
@@ -19,11 +21,22 @@ export function Dispense(props) {
     const { loading, error, data } = useDataQuery(getUsers());
     const [dispenser, setDispenser] = useState("");
     const [recipient, setRecipient] = useState("");
+    const [modalHidden, setModalHidden] = useState(true);
 
     // Handles addition of new input fields. The ID is the current date to ensure no duplicate keys.
     const handleAddEntry = () => {
         setEntries(prevEntries => [...prevEntries, { id: Date.now(), amount: 0, commodity: "" }]);
     };
+
+    function clearAll(){
+        setCommodityConsumptionArr([]);
+        setCommodityTotalAmountArr([]);
+        setEntries([{
+            id: Date.now(), amount: 0, commodity: ""
+        }]);
+        setDispenser("");
+        setRecipient("");
+    }
     
     // Handles removal of existing input fields.
     const handleRemoveEntry = (commodity) => {
@@ -128,17 +141,69 @@ export function Dispense(props) {
     
                 <div className="recipient-controls">
                     <Button large primary className="icon-button" type="button" onClick={(e) => {
-                        mutate({
-                            dispenseMutation: commodityTotalAmountArr,
-                        }).then(function (response) {
-                                if (response.response.status !== "SUCCESS") {
-                                    success = false
-                                    console.log(response);
-                                }
-                        })
+                        setModalHidden(false);
                     }}><IconCheckmarkCircle24/>Verify Selection</Button>
                 </div>
+
+                <Modal hide={modalHidden} medium>
+                    <ModalContent>
+                        <h4>Dispensing commodities from {dispenser} to {recipient}.</h4>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                <TableCell><b>Commodity</b></TableCell>
+                                <TableCell><b>Quantity</b></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {/*Mapping of commodities using the filteredData*/}
+                                {entries.map(commodity => ( 
+                                <TableRow key={commodity.id}> 
+                                    <TableCell>{getCommodityName(commodity.commodity, mergedData)}</TableCell>
+                                    <TableCell>{commodity.amount}</TableCell>
+                                </TableRow>
+                            ))}
+                            </TableBody>
+                        </Table>
+                    </ModalContent>
+                    <ModalActions>
+                        <ButtonStrip end>
+                            <Button medium destructive onClick={(e) => {
+                                setModalHidden(true);
+                            }}>Cancel</Button>
+                            <Button medium primary onClick={(e) => {
+                                mutate({
+                                    dispenseMutation: commodityTotalAmountArr,
+                                }).then(function (response) {
+                                        if (response.response.status !== "SUCCESS") {
+                                            success = false
+                                            console.log(response);
+                                        }
+                                })
+                                clearAll();
+                                setModalHidden(true);
+
+                                Toastify({
+                                    text: "Commodities successfully dispensed.",
+                                    duration: 3000,
+                                    destination: "https://github.com/apvarun/toastify-js",
+                                    newWindow: true,
+                                    close: true,
+                                    gravity: "top", // `top` or `bottom`
+                                    position: "center", // `left`, `center` or `right`
+                                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                                    style: {
+                                      background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                    },
+                                    onClick: function(){} // Callback after click
+                                }).showToast();
+                            }}>
+                            Confirm</Button>
+                        </ButtonStrip>
+                    </ModalActions>
+                </Modal>
             </div>
+            
         )
     }
 }
@@ -182,6 +247,7 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                 </AlertBar>
             )}
             <div className="controls">
+
                 <div className="section">
                     {index === 0 && <h4 className="title">Commodity</h4>}
                     {index > 0 && <h4 className="title">‎</h4>} 
@@ -212,7 +278,18 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                     {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
                     <Button destructive className="controls-button" type="button" onClick={onRemove}><IconCross24/></Button>
                 </div>
+
             </div>
         </div>
     );
+}
+
+function getCommodityName(id, mergedData){
+    let name = "";
+    mergedData.map((element) => {
+        if(element.id == id){
+            name = element.name;
+        }
+    })
+    return name;
 }
