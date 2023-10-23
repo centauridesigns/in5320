@@ -25,6 +25,10 @@
     align-items:center;
 }
 
+.controls-button {
+    margin-bottom: 5px;
+}
+
 .input-button-wrapper {
     flex: 1;
     align-items: center; /* vertical alignment */

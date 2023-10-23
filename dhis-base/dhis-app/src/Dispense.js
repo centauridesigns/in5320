@@ -198,8 +198,8 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                 </div>
 
                 <div className="button-section">
-                    {buttonVisible && (<Button className="confirm-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
-                    <Button className="remove-button" type="button" onClick={onRemove}><IconCross24/></Button>
+                    {buttonVisible && (<Button className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
+                    <Button className="controls-button" type="button" onClick={onRemove}><IconCross24/></Button>
                 </div>
             </div>
         </div>
