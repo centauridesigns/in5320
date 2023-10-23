@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableCell , SingleSelect, SingleSelectOption, Input, Button} from "@dhis2/ui";
-import { IconCross24, IconAdd24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24 , IconCheckmark24} from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { postDispenseTransaction} from "./api.js";
 
@@ -33,7 +33,8 @@ export function Dispense(props) {
     const [entries, setEntries] = useState([{
         id: Date.now(), amount: 0, commodity: ""
     }]);
-    const [dispenseTransactionArray, setDispenseTransactionArray] = useState([])
+    const [commodityConsumptionArr, setCommodityConsumptionArr] = useState([]);
+    const [commodityTotalAmountArr, setCommodityTotalAmountArr] = useState([]);
 
     useEffect(() => {
         console.log("Saved commodities:", entries);
@@ -45,8 +46,11 @@ export function Dispense(props) {
     };
 
     // Handles removal of existing input fields.
-    const handleRemoveEntry = (id) => {
+    const handleRemoveEntry = (commodity) => {
+        const id = commodity.id
         setEntries(prevEntries => prevEntries.filter(entry => entry.id !== id));
+        setCommodityConsumptionArr(prevEntries => prevEntries.filter(entry => entry.dataElement !== commodity.commodity));
+        setCommodityTotalAmountArr(prevEntries => prevEntries.filter(entry => entry.dataElement !== commodity.commodity));
     };
 
     // Handles input fields. When a commodity is deselected, subsequent input fields are allowed to contain said commodity.
@@ -59,6 +63,33 @@ export function Dispense(props) {
         }));
     };
 
+    // Handles confirmation of entry
+    const handleConfirmEntry = (entry) => {
+        setCommodityConsumptionArr([...commodityConsumptionArr, {
+            categoryOptionCombo: "J2Qf1jtZuj8",
+            dataElement: entry.commodity,
+            period: "202310", 
+            orgUnit: "XtuhRhmbrJM",
+            value: entry.amount
+        }])
+
+        let oldValue = 0;
+        mergedData.map((c) => {
+            if (c.id == entry.commodity){
+                oldValue = c.value
+            }
+        })
+
+        setCommodityTotalAmountArr([...commodityTotalAmountArr, {
+            categoryOptionCombo: "J2Qf1jtZuj8",
+            dataElement: entry.commodity,
+            period: "202310", 
+            orgUnit: "XtuhRhmbrJM",
+            value: oldValue - entry.amount
+        }])
+    };
+
+
     return(
         <div>
             <h1>Dispense</h1>
@@ -68,8 +99,9 @@ export function Dispense(props) {
                         key={entry.id}
                         id={entry.id}
                         mergedData={mergedData}
-                        onRemove={() => handleRemoveEntry(entry.id)}
+                        onRemove={() => handleRemoveEntry(entry)}
                         onCommodityChange={handleCommodityChange}
+                        onConfirm={() => handleConfirmEntry(entry)}
                     />
                 ))}
                 <Button className="add-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add commodity</Button>
@@ -77,28 +109,25 @@ export function Dispense(props) {
             </div>
             <div className="recipient-controls">
                 <Button className="testing" type="button" onClick={(e) => {
-                    setDispenseTransactionArray([{
-                        categoryOptionCombo: "J2Qf1jtZuj8",
-                        dataElement: ""
-                    }])
-
                     mutate({
-                        dispenseMutation: dispenseTransactionArray,
+                        dispenseMutation: commodityTotalAmountArr,
                     }).then(function (response) {
                             if (response.response.status !== "SUCCESS") {
                                 success = false
                                 console.log(response);
                             }
                     })
-                }}>Post</Button>
+                }}>Verify</Button>
             </div>
         </div>
     )
 }
 
-function NewEntry({id, mergedData, onRemove, onCommodityChange}){
+function NewEntry({id, mergedData, onRemove, onCommodityChange, onConfirm}){
     const [amount, setAmount] = useState(0);
     const [selectedCommodity, setSelectedCommodity] = useState("");
+    const [inputDisabled, setInputDisabled] = useState(false)
+    const [buttonVisible, setButtonVisible] = useState(true)
 
     const handleSelectChange = (value) => {
         setSelectedCommodity(value.selected);
@@ -110,13 +139,19 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange}){
         onCommodityChange(id, selectedCommodity, event.value);
     };
 
+    const handleConfirm = () => {
+        setInputDisabled(true);
+        setButtonVisible(false);
+        onConfirm();
+    }
+
     return (
         <div>
             <div className="controls">
                 <div className="section">
                     <p className="title">Commodity</p>
                     <div className="small-dropdown">
-                        <SingleSelect className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
+                        <SingleSelect disabled={inputDisabled} className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
                             {mergedData.map((commodity) => 
                                 <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
                             )}
@@ -127,13 +162,14 @@ function NewEntry({id, mergedData, onRemove, onCommodityChange}){
                 <div className="section">
                     <p className="title">Quantity</p>
                     <div className="amount">
-                        <Input className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+                        <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
                     </div>
                     <p className="desc">Write or add the amount of packages you want to dispense</p>
                 </div>
                 <div>
                     <div className="empty-title"></div>
                     <div>
+                        {buttonVisible && (<Button className="confirm-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
                         <Button className="remove-button" type="button" onClick={onRemove}><IconCross24/></Button>
                     </div>
                 </div>
