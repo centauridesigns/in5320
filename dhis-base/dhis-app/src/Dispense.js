@@ -113,7 +113,7 @@ export function Dispense(props) {
                     <AlertBar
                         duration={200}
                         onHidden={() => setShowAlert(false)}
-                        critical>
+                        warning>
                         Please confirm all commodity-entries you would like to add to transaction.
                     </AlertBar>
                 )}
@@ -295,7 +295,7 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                 <AlertBar
                     duration={200}
                     onHidden={() => setShowAlert(false)}
-                    critical>
+                    warning>
                     Please select a commodity and specify an amount.
                 </AlertBar>
             )}
