@@ -6,6 +6,7 @@ import { Navigation } from "./Navigation";
 import { Datasets } from "./Datasets";
 import { Commodities } from "./Commodities";
 import { Dispense } from "./Dispense";
+import { Personnel } from "./Personnel";
 
 import { useDataQuery } from '@dhis2/app-runtime'
 
@@ -118,7 +119,7 @@ function MyApp() {
         {activePage === "Dashboard" && <Dashboard/>}
         {activePage === "Commodities" && <Commodities mergedData={mergedData}/>}
         {activePage === "Dispense" && <Dispense mergedData={mergedData}/>}
-        {activePage === "Datasets" && <Datasets />}
+        {activePage === "Personnel" && <Personnel />}
       </div>
     </div>
   );

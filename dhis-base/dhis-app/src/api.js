@@ -9,6 +9,17 @@ export function postDispenseTransaction() {
     };
 }
 
+export function postNewPersonnel(personnelName, personnelAffiliation) {
+    return {
+        resource: "/dataStore/IN5320-9/" + key,
+        type: "create", // create, update, delete
+        body: {
+            "personnelName" : personnelName,
+            "personnelAffiliation": personnelAffiliation,
+        }
+    }
+}
+
 export function getUsers(){
     return ({
         dataSets: { // Enter the datasets
