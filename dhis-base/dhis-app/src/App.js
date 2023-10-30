@@ -41,15 +41,15 @@ const query = {
   localUsers: {
     resource: "/users",
     params: {
-        paging: "false",
-        userOrgUnits: true
+      paging: "false",
+      userOrgUnits: true
     }
   },
   allUsers: {
-      resource: "/users",
-      params: {
-          paging: "false",
-      }
+    resource: "/users",
+    params: {
+      paging: "false",
+    }
   },
 };
 
@@ -116,9 +116,9 @@ function MyApp() {
         />
       </div>
       <div className={classes.right}>
-        {activePage === "Dashboard" && <Dashboard/>}
-        {activePage === "Commodities" && <Commodities mergedData={mergedData}/>}
-        {activePage === "Dispense" && <Dispense mergedData={mergedData}/>}
+        {activePage === "Dashboard" && <Dashboard />}
+        {activePage === "Commodities" && <Commodities mergedData={mergedData} />}
+        {activePage === "Dispense" && <Dispense mergedData={mergedData} />}
         {activePage === "Personnel" && <Personnel />}
       </div>
     </div>
