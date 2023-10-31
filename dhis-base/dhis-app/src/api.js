@@ -9,14 +9,11 @@ export function postDispenseTransaction() {
     };
 }
 
-export function postNewPersonnel(personnelName, personnelAffiliation) {
+export function postNewPersonnel() {
     return {
-        resource: "/dataStore/IN5320-9/" + key,
-        type: "create", // create, update, delete
-        body: {
-            "personnelName": personnelName,
-            "personnelAffiliation": personnelAffiliation,
-        }
+        resource: "/dataStore/IN5320-9/personnel/",
+        type: "update", // create, update, delete
+        data: (personnel) => personnel
     }
 }
 
@@ -61,5 +58,13 @@ export function getUsers() {
                 paging: "false",
             }
         },
+    });
+}
+
+export function getPersonnel() {
+    return ({
+        personnel: {
+            resource: "/dataStore/IN5320-9/personnel/",
+        }
     });
 }

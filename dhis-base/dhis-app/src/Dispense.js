@@ -228,7 +228,6 @@ export function Dispense(props) {
                                     dispenseMutation: commodityTotalAmountArr,
                                 }).then(function (response) {
                                     if (response.response.status !== "SUCCESS") {
-                                        success = false
                                         console.log(response);
                                     }
                                 })
