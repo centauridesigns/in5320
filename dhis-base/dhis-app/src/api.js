@@ -14,13 +14,13 @@ export function postNewPersonnel(personnelName, personnelAffiliation) {
         resource: "/dataStore/IN5320-9/" + key,
         type: "create", // create, update, delete
         body: {
-            "personnelName" : personnelName,
+            "personnelName": personnelName,
             "personnelAffiliation": personnelAffiliation,
         }
     }
 }
 
-export function getUsers(){
+export function getUsers() {
     return ({
         dataSets: { // Enter the datasets
             resource: "/dataSets/ULowA8V3ucd?fields=dataSetElements[dataElement[name, id, *]]",  // URL resource, grabs name and ID of commodity
@@ -33,15 +33,15 @@ export function getUsers(){
         },
         // Potential dataValueSets call, alternatively make other requests here
         dataValueSets: {
-        resource: "/dataValueSets/",
-        params: { // Related parameters to sen
-            orgUnit: 'XtuhRhmbrJM', // The orgunit id assigned to our group
-            // for testing - orgUnit: 'ImspTQPwCqd', // Organizational unit belonging to John Abel
-            period: '202310',
-            dataSet: 'ULowA8V3ucd',
-            fields: [
-                'dataElement', // Data element so we can match items from dataSets with items from dataValueSets
-                'dataValues[value]', // Extract value (number of items)
+            resource: "/dataValueSets/",
+            params: { // Related parameters to sen
+                orgUnit: 'XtuhRhmbrJM', // The orgunit id assigned to our group
+                // for testing - orgUnit: 'ImspTQPwCqd', // Organizational unit belonging to John Abel
+                period: '202310',
+                dataSet: 'ULowA8V3ucd',
+                fields: [
+                    'dataElement', // Data element so we can match items from dataSets with items from dataValueSets
+                    'dataValues[value]', // Extract value (number of items)
                 ]
             },
         },

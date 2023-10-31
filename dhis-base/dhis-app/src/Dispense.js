@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useDataQuery , useDataMutation} from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell , SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip} from "@dhis2/ui";
-import { IconCross24, IconAdd24 , IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
+import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
-import { getUsers, postDispenseTransaction} from "./api.js";
+import { getUsers, postDispenseTransaction } from "./api.js";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 
@@ -32,7 +32,7 @@ export function Dispense(props) {
         setEntries(prevEntries => [...prevEntries, { id: Date.now(), amount: 0, commodity: "" }]);
     };
 
-    function clearAll(){
+    function clearAll() {
         setCommodityConsumptionArr([]);
         setCommodityTotalAmountArr([]);
         setEntries([{
@@ -41,7 +41,7 @@ export function Dispense(props) {
         setDispenser("");
         setRecipient("");
     }
-    
+
     // Handles removal of existing input fields.
     const handleRemoveEntry = (commodity) => {
         const id = commodity.id
@@ -57,11 +57,11 @@ export function Dispense(props) {
     const setConfirmedForEntry = (entryId, isConfirmed) => {
         setConfirmedEntries(prev => ({ ...prev, [entryId]: isConfirmed }));
     };
-    
+
     // Handles input fields. When a commodity is deselected, subsequent input fields are allowed to contain said commodity.
     const handleCommodityChange = (id, commodityId, amount) => {
-        if (!commodityId || amount === 0 || amount === "") {}
-        
+        if (!commodityId || amount === 0 || amount === "") { }
+
         else {
             setEntries(prevEntries => prevEntries.map(entry => {
                 if (entry.id === id) {
@@ -71,42 +71,42 @@ export function Dispense(props) {
             }));
         }
     };
-    
+
     // Handles confirmation of entry
     const handleConfirmEntry = (entry) => {
-        if (!entry.commodity || entry.amount === 0 || entry.amount === "") {}
+        if (!entry.commodity || entry.amount === 0 || entry.amount === "") { }
         else {
             setCommodityConsumptionArr([...commodityConsumptionArr, {
                 categoryOptionCombo: "J2Qf1jtZuj8",
                 dataElement: entry.commodity,
-                period: "202310", 
+                period: "202310",
                 orgUnit: "XtuhRhmbrJM",
                 value: entry.amount
             }])
 
             let oldValue = 0;
             mergedData.map((c) => {
-                if (c.id == entry.commodity){
+                if (c.id == entry.commodity) {
                     oldValue = c.value
                 }
             })
-            
+
             setCommodityTotalAmountArr([...commodityTotalAmountArr, {
                 categoryOptionCombo: "J2Qf1jtZuj8",
                 dataElement: entry.commodity,
-                period: "202310", 
+                period: "202310",
                 orgUnit: "XtuhRhmbrJM",
                 value: oldValue - entry.amount
             }])
         }
     };
-    
+
     useEffect(() => {
         console.log("Saved commodities:", entries);
     }, [entries]);
 
-    if (data){
-        return(
+    if (data) {
+        return (
             <div>
                 {<h1>Dispense</h1>}
                 {showAlert && (
@@ -130,28 +130,28 @@ export function Dispense(props) {
                             setConfirmedForEntry={setConfirmedForEntry}
                         />
                     ))}
-                    <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24/> Add Commodity</Button>
+                    <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24 /> Add Commodity</Button>
                     <p className="desc">Add a commodity using this button.</p>
                 </div>
-                
+
                 {/*Dispenser and recipient select */}
                 <div className="controls">
                     <div className="section">
                         <h4 className="title">Dispenser</h4>
                         <div className="small-dropdown">
-                            <SingleSelect 
-                            error={dispenserError} 
-                            filterable 
-                            clearable 
-                            clearText="Clear" 
-                            className="select" 
-                            placeholder="Name of dispenser" 
-                            onChange={(e) => {
-                                setDispenser(e.selected);
-                                setDispenserError(false);
-                            }} 
-                            selected={dispenser}>
-                                {data.localUsers.users.map((user) => 
+                            <SingleSelect
+                                error={dispenserError}
+                                filterable
+                                clearable
+                                clearText="Clear"
+                                className="select"
+                                placeholder="Name of dispenser"
+                                onChange={(e) => {
+                                    setDispenser(e.selected);
+                                    setDispenserError(false);
+                                }}
+                                selected={dispenser}>
+                                {data.localUsers.users.map((user) =>
                                     <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
                                 )}
                             </SingleSelect>
@@ -162,18 +162,18 @@ export function Dispense(props) {
                         <h4 className="title">Recipient</h4>
                         <div className="small-dropdown">
                             <SingleSelect
-                            error={recipientError}
-                            filterable 
-                            clearable 
-                            clearText="Clear" 
-                            className="select" 
-                            placeholder="Name of recipient" 
-                            onChange={(e) => {
-                                setRecipient(e.selected);
-                                setRecipientError(false);
-                            }}
-                            selected={recipient}>
-                                {data.allUsers.users.map((user) => 
+                                error={recipientError}
+                                filterable
+                                clearable
+                                clearText="Clear"
+                                className="select"
+                                placeholder="Name of recipient"
+                                onChange={(e) => {
+                                    setRecipient(e.selected);
+                                    setRecipientError(false);
+                                }}
+                                selected={recipient}>
+                                {data.allUsers.users.map((user) =>
                                     <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
                                 )}
                             </SingleSelect>
@@ -181,20 +181,20 @@ export function Dispense(props) {
                         <p className="desc">Select the person receiving.</p>
                     </div>
                 </div>
-    
+
                 <div className="recipient-controls">
                     <Button large primary className="icon-button" type="button" onClick={(e) => {
                         const allEntriesConfirmed = entries.every(entry => confirmedEntries[entry.id]);
-                        if (!dispenser){
+                        if (!dispenser) {
                             setDispenserError(true);
-                        }else if(!recipient){
+                        } else if (!recipient) {
                             setRecipientError(true);
-                        }else if(!allEntriesConfirmed){
+                        } else if (!allEntriesConfirmed) {
                             setShowAlert(true);
-                        }else{
+                        } else {
                             setModalHidden(false);
                         }
-                    }}><IconCheckmarkCircle24/>Verify Selection</Button>
+                    }}><IconCheckmarkCircle24 />Verify Selection</Button>
                 </div>
 
                 <Modal hide={modalHidden} medium>
@@ -203,18 +203,18 @@ export function Dispense(props) {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                <TableCell><b>Commodity</b></TableCell>
-                                <TableCell><b>Quantity</b></TableCell>
+                                    <TableCell><b>Commodity</b></TableCell>
+                                    <TableCell><b>Quantity</b></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {/*Mapping of commodities using the filteredData*/}
-                                {entries.map(commodity => ( 
-                                <TableRow key={commodity.id}> 
-                                    <TableCell>{getCommodityName(commodity.commodity, mergedData)}</TableCell>
-                                    <TableCell>{commodity.amount}</TableCell>
-                                </TableRow>
-                            ))}
+                                {entries.map(commodity => (
+                                    <TableRow key={commodity.id}>
+                                        <TableCell>{getCommodityName(commodity.commodity, mergedData)}</TableCell>
+                                        <TableCell>{commodity.amount}</TableCell>
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </ModalContent>
@@ -227,10 +227,10 @@ export function Dispense(props) {
                                 mutate({
                                     dispenseMutation: commodityTotalAmountArr,
                                 }).then(function (response) {
-                                        if (response.response.status !== "SUCCESS") {
-                                            success = false
-                                            console.log(response);
-                                        }
+                                    if (response.response.status !== "SUCCESS") {
+                                        success = false
+                                        console.log(response);
+                                    }
                                 })
                                 clearAll();
                                 setModalHidden(true);
@@ -245,22 +245,22 @@ export function Dispense(props) {
                                     position: "center", // `left`, `center` or `right`
                                     stopOnFocus: true, // Prevents dismissing of toast on hover
                                     style: {
-                                      background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                        background: "linear-gradient(to right, #00b09b, #96c93d)",
                                     },
-                                    onClick: function(){} // Callback after click
+                                    onClick: function () { } // Callback after click
                                 }).showToast();
                             }}>
-                            Confirm</Button>
+                                Confirm</Button>
                         </ButtonStrip>
                     </ModalActions>
                 </Modal>
             </div>
-            
+
         )
     }
 }
 
-function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm, setConfirmedForEntry}){
+function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfirm, setConfirmedForEntry }) {
     const [amount, setAmount] = useState(0);
     const [selectedCommodity, setSelectedCommodity] = useState("");
     const [inputDisabled, setInputDisabled] = useState(false);
@@ -303,11 +303,11 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
 
                 <div className="section">
                     {index === 0 && <h4 className="title">Commodity</h4>}
-                    {index > 0 && <h4 className="title">‎</h4>} 
+                    {index > 0 && <h4 className="title">‎</h4>}
                     <div className="input-button-wrapper">
                         <div className="small-dropdown">
                             <SingleSelect filterable clearable clearText="Clear" disabled={inputDisabled} className="select" placeholder="Commodity" onChange={handleSelectChange} selected={selectedCommodity}>
-                                {mergedData.map((commodity) => 
+                                {mergedData.map((commodity) =>
                                     <SingleSelectOption key={commodity.id} label={`${commodity.name} (${commodity.value})`} value={commodity.id} />
                                 )}
                             </SingleSelect>
@@ -318,7 +318,7 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
 
                 <div className="section">
                     {index === 0 && <h4 className="title">Quantity</h4>}
-                    {index > 0 && <h4 className="title">‎</h4>} 
+                    {index > 0 && <h4 className="title">‎</h4>}
                     <div className="input-button-wrapper">
                         <div className="amount">
                             <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
@@ -328,8 +328,8 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
                 </div>
 
                 <div className="button-section">
-                    {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24/></Button>)}
-                    <Button destructive className="controls-button" type="button" onClick={onRemove}><IconCross24/></Button>
+                    {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 /></Button>)}
+                    <Button destructive className="controls-button" type="button" onClick={onRemove}><IconCross24 /></Button>
                 </div>
 
             </div>
@@ -337,10 +337,10 @@ function NewEntry({id, index, mergedData, onRemove, onCommodityChange, onConfirm
     );
 }
 
-function getCommodityName(id, mergedData){
+function getCommodityName(id, mergedData) {
     let name = "";
     mergedData.map((element) => {
-        if(element.id == id){
+        if (element.id == id) {
             name = element.name;
         }
     })
