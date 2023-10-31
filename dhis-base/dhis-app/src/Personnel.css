@@ -1,0 +1,49 @@
+.section{
+    flex: 1;
+}
+
+.remove-button {
+    flex: 0;
+}
+
+.empty-title {
+    height: 5px;
+}
+
+.title {
+    font-size: 17px;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+.desc {
+    margin-top: 5px;
+    font-size: 14px;
+    color:gray;
+}
+
+.controls {
+    align-items:center;
+}
+
+.controls-button {
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.input-button-wrapper {
+    flex: 1;
+    align-items: center; /* vertical alignment */
+}
+
+.icon-button {
+    gap: 10px;
+}
+
+.commodity-controls {
+    margin-bottom: 100px;
+}
+
+.table {
+    margin-bottom: 100px;
+}

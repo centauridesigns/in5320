@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { postDispenseTransaction } from './api.js';
 import { useDataMutation } from '@dhis2/app-runtime';
 import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEdit24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
@@ -95,20 +96,19 @@ export function Commodities(props) {
         <Input className="searchbar"
           name="searchBar"
           type="text"
-          placeholder="Name"
+          placeholder="Search for commodities"
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <DropdownButton className="dropdown"
-          component={<FlyoutMenu></FlyoutMenu>}
-          name="dropDown"
-          value="dropDownValue"
-        >
-          Category
-        </DropdownButton>
-        <Button onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-          {showUpdateLayout ? "Cancel" : "Incoming Quantity"}
-        </Button>
+        {showUpdateLayout ? (
+          <Button destructive className="cancel-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
+            Cancel
+          </Button>
+        ) : (
+          <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
+            <IconEdit24 /> Update Stock
+          </Button>
+        )}
       </div>
       <div className="table">
         <Table>
@@ -128,7 +128,8 @@ export function Commodities(props) {
                   <TableCell>
                     <Input
                       onChange={(e) => handleConfirmEntry(commodity.id, e.value)}
-                      placeholder="Incoming Quantity"
+                      placeholder="# of incoming commodities"
+                      type="number" min="0" max="1000"
                     />
                   </TableCell>
                 )}
@@ -141,18 +142,19 @@ export function Commodities(props) {
             //handleUpdateAllQuantities()
             setModalHidden(false)
           }}>
-            Update All Quantities
+            <IconCheckmarkCircle24 /> Update All Quantities
           </Button>
         )}
       </div>
       <Modal hide={modalHidden} medium>
         <ModalContent>
-          <h4>Incoming commodities</h4>
+          <h4>Confirm: Incoming Commodities</h4>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell><b>Commodity</b></TableCell>
-                <TableCell><b>Quantity</b></TableCell>
+                <TableCell><b>New Quantity</b></TableCell>
+                <TableCell><b>Old Quantity</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -161,6 +163,7 @@ export function Commodities(props) {
                 <TableRow key={commodity.dataElement}>
                   <TableCell>{getCommodityName(commodity.dataElement, mergedData)}</TableCell>
                   <TableCell>{`${getValueFromId(commodity.dataElement, commodityTotalAmountArr)} (+${commodity.value})`}</TableCell>
+                  <TableCell className="old-item">{`${getValueFromId(commodity.dataElement, commodityTotalAmountArr) - commodity.value}`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -131,7 +131,7 @@ export function Dispense(props) {
                         />
                     ))}
                     <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24 /> Add Commodity</Button>
-                    <p className="desc">Add a commodity using this button.</p>
+                    <p className="desc">Add another commodity.</p>
                 </div>
 
                 {/*Dispenser and recipient select */}
@@ -199,7 +199,7 @@ export function Dispense(props) {
 
                 <Modal hide={modalHidden} medium>
                     <ModalContent>
-                        <h4>Dispensing commodities from {dispenser} to {recipient}.</h4>
+                        <h4>Confirm: Dispensing Commodities from {dispenser} to {recipient}</h4>
                         <Table>
                             <TableHead>
                                 <TableRow>
