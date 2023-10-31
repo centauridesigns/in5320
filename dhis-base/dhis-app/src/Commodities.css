@@ -12,6 +12,10 @@
     width: 100%;
 }
 
+.update-button{
+    margin-top: 1rem;
+}
+
 .searchbar .dropdown {
     flex-grow: 1 !important;
 }
