@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { postDispenseTransaction } from './api.js';
 import { useDataMutation } from '@dhis2/app-runtime';
-import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent } from "@dhis2/ui";
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
 import "./Commodities.css";
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 
 export function Commodities(props) {
   const { mergedData } = props;
@@ -21,14 +23,7 @@ export function Commodities(props) {
     console.log(id, value)
     if (!id || value === 0) { }
     else {
-      setCommodityAdditionArr([...commodityTotalAmountArr, {
-        categoryOptionCombo: "J2Qf1jtZuj8",
-        dataElement: id,
-        period: "202310",
-        orgUnit: "XtuhRhmbrJM",
-        value: parseInt(oldValue) + parseInt(value)  // Perform addition here
-      }])
-
+      let isFound = false;
       let oldValue = 0;
       mergedData.map((c) => {
         if (c.id == id) {
@@ -36,37 +31,44 @@ export function Commodities(props) {
         }
       })
 
-      setCommodityTotalAmountArr([...commodityTotalAmountArr, {
-        categoryOptionCombo: "J2Qf1jtZuj8",
-        dataElement: id,
-        period: "202310",
-        orgUnit: "XtuhRhmbrJM",
-        value: parseInt(oldValue) + parseInt(value)  // Perform addition here
-      }])
+      commodityAdditionArr.forEach((c) => {
+          if(c.dataElement == id){
+            c.value = parseInt(value); // Update the value
+            isFound = true; 
+          }
+      });
+
+      if (!isFound){
+        setCommodityAdditionArr([...commodityAdditionArr, {
+          categoryOptionCombo: "J2Qf1jtZuj8",
+          dataElement: id,
+          period: "202310",
+          orgUnit: "XtuhRhmbrJM",
+          value: parseInt(value)  
+        }])
+  
+        setCommodityTotalAmountArr([...commodityTotalAmountArr, {
+          categoryOptionCombo: "J2Qf1jtZuj8",
+          dataElement: id,
+          period: "202310",
+          orgUnit: "XtuhRhmbrJM",
+          value: parseInt(oldValue) + parseInt(value) 
+        }])
+      }else{
+        commodityTotalAmountArr.forEach((c) => {
+          if(c.dataElement == id){
+            c.value = parseInt(oldValue) + parseInt(value); // Update the value
+          }
+        });
+      }
     }
   };
 
   function clearAll() {
     setCommodityTotalAmountArr([]);
+    setCommodityAdditionArr([]);
+    setShowUpdateLayout(false);
   }
-
-  const handleUpdateAllQuantities = () => {
-    mutate({
-      dispenseMutation: commodityTotalAmountArr,
-    })
-      .then(response => {
-        if (response.response.status !== "SUCCESS") {
-          console.log(response);
-        } else {
-          // Add any success handling logic if needed
-        }
-        clearAll(); // Assuming this function is defined somewhere
-        setModalHidden(true); // Assuming this function is defined somewhere
-      })
-      .catch(error => {
-        console.error("Error updating quantities:", error);
-      });
-  };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.value);
@@ -105,7 +107,7 @@ export function Commodities(props) {
           Category
         </DropdownButton>
         <Button onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-          {showUpdateLayout ? "Cancel" : "Update Quantity"}
+          {showUpdateLayout ? "Cancel" : "Incoming Quantity"}
         </Button>
       </div>
       <div className="table">
@@ -114,7 +116,7 @@ export function Commodities(props) {
             <TableRow>
               <TableCell><b>Name</b></TableCell>
               <TableCell><b>Quantity</b></TableCell>
-              {showUpdateLayout && <TableCell><b>Update Quantity</b></TableCell>}
+              {showUpdateLayout && <TableCell><b>Incoming Quantity</b></TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -125,9 +127,8 @@ export function Commodities(props) {
                 {showUpdateLayout && (
                   <TableCell>
                     <Input
-                      defaultValue={commodity.value}
                       onChange={(e) => handleConfirmEntry(commodity.id, e.value)}
-                      placeholder="Update Quantity"
+                      placeholder="Incoming Quantity"
                     />
                   </TableCell>
                 )}
@@ -137,7 +138,7 @@ export function Commodities(props) {
         </Table>
         {showUpdateLayout && (
           <Button className="update-button" primary large onClick={(e) => {
-            handleUpdateAllQuantities()
+            //handleUpdateAllQuantities()
             setModalHidden(false)
           }}>
             Update All Quantities
@@ -146,7 +147,7 @@ export function Commodities(props) {
       </div>
       <Modal hide={modalHidden} medium>
         <ModalContent>
-          <h4>Confirm quantity</h4>
+          <h4>Incoming commodities</h4>
           <Table>
             <TableHead>
               <TableRow>
@@ -156,10 +157,10 @@ export function Commodities(props) {
             </TableHead>
             <TableBody>
               {/*Mapping of commodities using the filteredData*/}
-              {entries.map(commodity => (
-                <TableRow key={commodity.id}>
-                  <TableCell>{getCommodityName(commodity.commodity, mergedData)}</TableCell>
-                  <TableCell>{commodity.amount}</TableCell>
+              {commodityAdditionArr.map(commodity => (
+                <TableRow key={commodity.dataElement}>
+                  <TableCell>{getCommodityName(commodity.dataElement, mergedData)}</TableCell>
+                  <TableCell>{`${getValueFromId(commodity.dataElement, commodityTotalAmountArr)} (+${commodity.value})`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -183,7 +184,7 @@ export function Commodities(props) {
               setModalHidden(true);
 
               Toastify({
-                text: "Commodities successfully dispensed.",
+                text: "Commodities successfully updated.",
                 duration: 3000,
                 destination: "https://github.com/apvarun/toastify-js",
                 newWindow: true,
@@ -204,4 +205,25 @@ export function Commodities(props) {
 
     </div>
   );
+}
+
+function getCommodityName(id, mergedData) {
+  console.log("name in func: ", id);
+  let name = "";
+  mergedData.map((element) => {
+      if (element.id == id) {
+          name = element.name;
+      }
+  })
+  return name;
+}
+
+function getValueFromId(id, data) {
+  let value = 0;
+  data.map((element) => {
+      if (element.dataElement == id) {
+          value = element.value;
+      }
+  })
+  return value;
 }
