@@ -3,7 +3,7 @@ import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
-import { getUsers, postDispenseTransaction } from "./api.js";
+import { getData, postDispenseTransaction } from "./api.js";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 
@@ -18,7 +18,7 @@ export function Dispense(props) {
     }]);
     const [commodityConsumptionArr, setCommodityConsumptionArr] = useState([]);
     const [commodityTotalAmountArr, setCommodityTotalAmountArr] = useState([]);
-    const { loading, error, data } = useDataQuery(getUsers());
+    const { loading, error, data } = useDataQuery(getData());
     const [dispenser, setDispenser] = useState("");
     const [recipient, setRecipient] = useState("");
     const [modalHidden, setModalHidden] = useState(true);
@@ -151,8 +151,8 @@ export function Dispense(props) {
                                     setDispenserError(false);
                                 }}
                                 selected={dispenser}>
-                                {data.localUsers.users.map((user) =>
-                                    <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
+                                {data.personnel.personnel.map((user) =>
+                                    <SingleSelectOption key={user.name} label={user.name + " (" +user.affiliation + ")"} value={user.name} />
                                 )}
                             </SingleSelect>
                         </div>
@@ -173,8 +173,8 @@ export function Dispense(props) {
                                     setRecipientError(false);
                                 }}
                                 selected={recipient}>
-                                {data.allUsers.users.map((user) =>
-                                    <SingleSelectOption key={user.id} label={user.displayName} value={user.displayName} />
+                                {data.personnel.personnel.map((user) =>
+                                    <SingleSelectOption key={user.name} label={user.name} value={user.name} />
                                 )}
                             </SingleSelect>
                         </div>
@@ -254,7 +254,14 @@ export function Dispense(props) {
                     </ModalActions>
                 </Modal>
             </div>
+        )
+    }
 
+    else {
+        return (
+            <div>
+                <h1>Dispense</h1>
+            </div>
         )
     }
 }

@@ -16,6 +16,8 @@ export function Personnel() {
   const [confirmAlert, setConfirmAlert] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
   const [personnelArr, setPersonnelArr] = useState([]);
+  const [modalHidden, setModalHidden] = useState(true);
+  const [confirmed, setConfirmed] = useState(true);
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postNewPersonnel()
   );
@@ -42,15 +44,15 @@ export function Personnel() {
 
   if (error) {
     return (
-        <h1>Problem</h1>
+      <h1>Problem</h1>
     )
   }
   if (loading) {
-      return (
-        <h1>Loading..</h1>
-      )
+    return (
+      <h1>Loading..</h1>
+    )
   }
-  if (data){
+  if (data) {
     return (
       <div>
         <h1>Personnel</h1>
@@ -82,75 +84,89 @@ export function Personnel() {
             </TableBody>
           </Table>
         </div>
-        {inputAlert && (
-          <AlertBar
-            duration={200}
-            onHidden={() => setInputAlert(false)}
-            warning>
-            Please specify both personnel and hospital.
-          </AlertBar>
-        )}
-        {confirmAlert && (
-          <AlertBar
-            duration={200}
-            onHidden={() => setConfirmAlert(false)}
-            warning>
-            Please confirm the new personnel.
-          </AlertBar>
-        )}
-        <div className="controls">
-  
-          <div className="section">
-            <h4 className="title">Personnel</h4>
-            <Input disabled={inputDisabled} className="textInput" placeholder="Personnel name" type="text" value={personnel} onChange={handlePersonnelChange}></Input>
-            <p className="desc">Enter the name of the personnel.</p>
-          </div>
-  
-          <div className="section">
-            <h4 className="title">Hospital</h4>
-            <Input disabled={inputDisabled} className="textInput" placeholder="Hospital name" type="text" value={hospital} onChange={handleHospitalChange}></Input>
-            <p className="desc">Enter the name of the hospital where the personnel works.</p>
-          </div>
-          <div className="button-section">
-            <Button secondary className="controls-button" type="button" onClick={(e) => {
-              if (!personnel || hospital === 0) {
-                setInputAlert(true);
-                return;
-              }
-
-              setInputDisabled(true);
-
-              setPersonnelArr([{
-                name: personnel,
-                affiliation: hospital
-              }])
-            }}><IconCheckmark24 /></Button>
-          </div>
-        </div>
-        <Button primary className="icon-button" type="button" onClick={(e) => {
-          if (!inputDisabled){
-            setConfirmAlert(true);
-          }else{
-            let allPersonnel = [];
-            allPersonnel = data.personnel.personnel;
-            allPersonnel.push(personnelArr[0]);
-  
-            mutate({
-              personnel: allPersonnel,
-            }).then(function (response) {
-                if (response.status !== "SUCCESS") {
-                    //success = false
-                    console.log(response);
-                }
-            }).catch(function (response){
-              console.log(response);
-              //success = false;
-            });
-
-            clearAll();
-          }
+        <Button className="icon-button" type="button" onClick={(e) => {
+          setModalHidden(false)
         }}><IconAdd24 /> Add Personnel</Button>
         <p className="desc">Add another individual.</p>
+        <Modal hide={modalHidden} large>
+          <ModalContent>
+            <h4>Add: Personnel</h4>
+            {inputAlert && (
+              <AlertBar
+                duration={200}
+                onHidden={() => setInputAlert(false)}
+                warning>
+                Please specify both personnel and hospital.
+              </AlertBar>
+            )}
+            {confirmAlert && (
+              <AlertBar
+                duration={200}
+                onHidden={() => setConfirmAlert(false)}
+                warning>
+                Please confirm the new personnel.
+              </AlertBar>
+            )}
+            <div className="controls">
+              <div className="section">
+                <h4 className="title">Personnel</h4>
+                <Input disabled={inputDisabled} className="textInput" placeholder="Personnel name" type="text" value={personnel} onChange={handlePersonnelChange}></Input>
+                <p className="desc">Enter the name of the personnel.</p>
+              </div>
+              <div className="section">
+                <h4 className="title">Hospital</h4>
+                <Input disabled={inputDisabled} className="textInput" placeholder="Hospital name" type="text" value={hospital} onChange={handleHospitalChange}></Input>
+                <p className="desc">Enter the name of the related hospital.</p>
+              </div>
+              <div className="button-section">
+                <Button secondary className="controls-button" type="button" onClick={(e) => {
+                  if (!personnel || hospital === 0) {
+                    setInputAlert(true);
+                    return;
+                  }
+
+                  setConfirmed(false);
+
+                  setInputDisabled(true);
+
+                  setPersonnelArr([{
+                    name: personnel,
+                    affiliation: hospital
+                  }])
+                }}><IconCheckmark24 /></Button>
+              </div>
+            </div>
+            <ButtonStrip>
+              <Button primary disabled={confirmed} className="icon-button" type="button" onClick={(e) => {
+                if (!inputDisabled) {
+                  setConfirmAlert(true);
+                } else {
+                  let allPersonnel = [];
+                  allPersonnel = data.personnel.personnel;
+                  allPersonnel.push(personnelArr[0]);
+
+                  mutate({
+                    personnel: allPersonnel,
+                  }).then(function (response) {
+                    if (response.status !== "SUCCESS") {
+                      //success = false
+                      console.log(response);
+                    }
+                  }).catch(function (response) {
+                    console.log(response);
+                    //success = false;
+                  });
+
+                  clearAll();
+                }
+              }}><IconCheckmarkCircle24/> Verify Addition</Button>
+              <Button medium destructive onClick={(e) => {
+                setModalHidden(true);
+                clearAll();
+              }}>Cancel</Button>
+            </ButtonStrip>
+          </ModalContent>
+        </Modal>
       </div>
     );
   }

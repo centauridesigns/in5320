@@ -17,7 +17,18 @@ export function postNewPersonnel() {
     }
 }
 
-export function getUsers() {
+export function postDeletePersonnel() {
+    return {
+        resource: "dataValueSets",
+        type: "delete",
+        dataSet: "ULowA8V3ucd",
+        data: ({ dispenseMutation }) => ({
+            dataValues: dispenseMutation,
+        }),
+    };
+}
+
+export function getData() {
     return ({
         dataSets: { // Enter the datasets
             resource: "/dataSets/ULowA8V3ucd?fields=dataSetElements[dataElement[name, id, *]]",  // URL resource, grabs name and ID of commodity
@@ -58,6 +69,9 @@ export function getUsers() {
                 paging: "false",
             }
         },
+        personnel: {
+            resource: "/dataStore/IN5320-9/personnel/",
+        }
     });
 }
 
