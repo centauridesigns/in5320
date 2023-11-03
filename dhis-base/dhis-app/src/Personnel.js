@@ -40,6 +40,7 @@ export function Personnel() {
     setHospital("");
     setInputDisabled(false);
     setPersonnelArr([]);
+    setConfirmed(true);
   }
 
   if (error) {
@@ -158,6 +159,7 @@ export function Personnel() {
                   });
 
                   clearAll();
+                  setModalHidden(true)
                 }
               }}><IconCheckmarkCircle24/> Verify Addition</Button>
               <Button medium destructive onClick={(e) => {
