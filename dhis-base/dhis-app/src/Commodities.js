@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { postDispenseTransaction } from './api.js';
 import { useDataMutation } from '@dhis2/app-runtime';
 import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEdit24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
@@ -106,7 +106,7 @@ export function Commodities(props) {
           </Button>
         ) : (
           <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            <IconEdit24 /> Update Stock
+            <IconEditItems24 /> Update Stock
           </Button>
         )}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
 
@@ -18,6 +18,9 @@ export function Personnel() {
   const [personnelArr, setPersonnelArr] = useState([]);
   const [modalHidden, setModalHidden] = useState(true);
   const [confirmed, setConfirmed] = useState(true);
+  const [showEditLayout, setShowEditLayout] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [selectedForDeletion, setSelectedForDeletion] = useState(null);
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postNewPersonnel()
   );
@@ -35,12 +38,46 @@ export function Personnel() {
     setHospital(event.value);
   };
 
+  // Effect for searching. We map the table to filteredData instead of data.personnel.personnel below. Conditional rendering ensures the
+  // site does not crash as the loading occurs.
+  useEffect(() => {
+    if (data?.personnel?.personnel) {
+      const filtered = searchTerm.trim() ? data.personnel.personnel.filter(person =>
+        person.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ) : data.personnel.personnel;
+      setFilteredData(filtered);
+    }
+  }, [searchTerm, data?.personnel?.personnel]);
+  
+  // Called when removing personnel.
+  const confirmPersonnelDelete = () => {
+    if (selectedForDeletion) {
+      const updatedPersonnel = data.personnel.personnel.filter(p => p.name !== selectedForDeletion.name);
+
+      mutate({
+        personnel: updatedPersonnel,
+      }).then(function (response) {
+        if (response.status !== "SUCCESS") {
+          console.log(response);
+        }
+      }).catch(function (response) {
+        console.log(response);
+      });
+
+      clearAll();
+    }
+  }
+
   function clearAll() {
     setPersonnel("");
     setHospital("");
     setInputDisabled(false);
     setPersonnelArr([]);
     setConfirmed(true);
+    setShowEditLayout(false);
+    setSelectedForDeletion(null);
+    setSelectedForDeletion(null);
+    setShowDeleteConfirmation(false);
   }
 
   if (error) {
@@ -66,6 +103,15 @@ export function Personnel() {
             value={searchTerm}
             onChange={handleSearchChange}
           />
+          {showEditLayout ? (
+            <Button destructive className="cancel-button" onClick={() => setShowEditLayout(!showEditLayout)}>
+              Cancel
+            </Button>
+          ) : (
+            <Button className="update-stock-button" onClick={() => setShowEditLayout(!showEditLayout)}>
+              <IconEditItems24 /> Edit Personnel
+            </Button>
+          )}
         </div>
         <div className="table">
           <Table>
@@ -73,21 +119,38 @@ export function Personnel() {
               <TableRow>
                 <TableCell><b>Personnel</b></TableCell>
                 <TableCell><b>Hospital</b></TableCell>
+                {showEditLayout && <TableCell><b>‎</b></TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.personnel.personnel.map(p => (
+              {filteredData.map((p) => (
                 <TableRow>
                   <TableCell>{p.name}</TableCell>
                   <TableCell>{p.affiliation}</TableCell>
+                  {showEditLayout && <TableCell className ="remove-button-cell">
+                    <Button className="controls-button" type="button" onClick={(e) => {
+                      setSelectedForDeletion(p);
+                      setShowDeleteConfirmation(true);
+                    }}><IconDelete24 /></Button>
+                  </TableCell>}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
+        <Modal hide={!showDeleteConfirmation} large>
+          <ModalContent>
+            <p>Are you sure you want to delete {selectedForDeletion?.name}?</p>
+            <ButtonStrip>
+              <Button destructive onClick={confirmPersonnelDelete}>Confirm</Button>
+              <Button onClick={() => setShowDeleteConfirmation(false)}> Cancel</Button>
+            </ButtonStrip>
+          </ModalContent>
+
+        </Modal>
         <Button className="icon-button" type="button" onClick={(e) => {
           setModalHidden(false)
-        }}><IconAdd24 /> Add Personnel</Button>
+        }}><IconFaceAdd24 /> Add Personnel</Button>
         <p className="desc">Add another individual.</p>
         <Modal hide={modalHidden} large>
           <ModalContent>
@@ -161,7 +224,7 @@ export function Personnel() {
                   clearAll();
                   setModalHidden(true)
                 }
-              }}><IconCheckmarkCircle24/> Verify Addition</Button>
+              }}><IconCheckmarkCircle24 /> Verify Addition</Button>
               <Button medium destructive onClick={(e) => {
                 setModalHidden(true);
                 clearAll();

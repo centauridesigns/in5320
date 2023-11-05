@@ -9,23 +9,13 @@ export function postDispenseTransaction() {
     };
 }
 
+// Used to update the personnel list. This includes both addition and removal of individuals.
 export function postNewPersonnel() {
     return {
         resource: "/dataStore/IN5320-9/personnel/",
         type: "update", // create, update, delete
         data: (personnel) => personnel
     }
-}
-
-export function postDeletePersonnel() {
-    return {
-        resource: "dataValueSets",
-        type: "delete",
-        dataSet: "ULowA8V3ucd",
-        data: ({ dispenseMutation }) => ({
-            dataValues: dispenseMutation,
-        }),
-    };
 }
 
 export function getData() {
