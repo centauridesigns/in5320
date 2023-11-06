@@ -3,7 +3,7 @@ import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Calendar, CalendarInput } from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
 import "./Dispense.css";
-import { getData, postDispenseTransaction } from "./api.js";
+import { getData, postDispenseTransaction, postNewTransaction } from "./api.js";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 
@@ -26,6 +26,10 @@ export function Dispense(props) {
   const [recipientError, setRecipientError] = useState(false);
   const [confirmedEntries, setConfirmedEntries] = useState({});
   const [showAlert, setShowAlert] = useState(false);
+  const [transactionArr, setTransactionArr] = useState([]);
+  const [mutateTransaction, { mutateLoadingTransaction, mutateErrorTransaction }] = useDataMutation(
+    postNewTransaction()
+  );
 
   // Handles addition of new input fields. The ID is the current date to ensure no duplicate keys.
   const handleAddEntry = () => {
@@ -76,28 +80,40 @@ export function Dispense(props) {
   const handleConfirmEntry = (entry) => {
     if (!entry.commodity || entry.amount === 0 || entry.amount === "") { }
     else {
-      setCommodityConsumptionArr([...commodityConsumptionArr, {
-        categoryOptionCombo: "J2Qf1jtZuj8",
-        dataElement: entry.commodity,
-        period: "202310",
-        orgUnit: "XtuhRhmbrJM",
-        value: entry.amount
-      }])
+        setCommodityConsumptionArr([...commodityConsumptionArr, {
+            categoryOptionCombo: "J2Qf1jtZuj8",
+            dataElement: entry.commodity,
+            period: "202310",
+            orgUnit: "XtuhRhmbrJM",
+            value: entry.amount
+        }])
 
-      let oldValue = 0;
-      mergedData.map((c) => {
-        if (c.id == entry.commodity) {
-          oldValue = c.value
-        }
-      })
+        let oldValue = 0;
+        mergedData.map((c) => {
+            if (c.id == entry.commodity) {
+            oldValue = c.value
+            }
+        })
 
-      setCommodityTotalAmountArr([...commodityTotalAmountArr, {
-        categoryOptionCombo: "J2Qf1jtZuj8",
-        dataElement: entry.commodity,
-        period: "202310",
-        orgUnit: "XtuhRhmbrJM",
-        value: oldValue - entry.amount
-      }])
+        setCommodityTotalAmountArr([...commodityTotalAmountArr, {
+            categoryOptionCombo: "J2Qf1jtZuj8",
+            dataElement: entry.commodity,
+            period: "202310",
+            orgUnit: "XtuhRhmbrJM",
+            value: oldValue - entry.amount
+        }])
+
+        let d = new Date();
+        setTransactionArr([...transactionArr, {
+            action: "Dispense",
+            id: entry.commodity,
+            name: getCommodityName(entry.commodity, mergedData),
+            newValue: parseInt(oldValue) - parseInt(entry.amount),
+            oldValue: parseInt(oldValue),
+            dispenser: "",
+            recipient: "",
+            time: d
+        }])
     }
   };
 
@@ -239,6 +255,26 @@ export function Dispense(props) {
                 })
                 clearAll();
                 setModalHidden(true);
+
+                //adding dispenser and recipient to the transactions
+                const updatedTransactions = transactionArr.map(transaction => ({
+                    ...transaction,
+                    dispenser: dispenser,
+                    recipient: recipient,
+                }));
+
+                //logging the transaction
+                let allTransactions = [];
+                allTransactions = data.transactions.transactions;
+                allTransactions = [...allTransactions, ...updatedTransactions];
+
+                mutateTransaction({
+                    transactions: allTransactions,
+                }).then(function (response) {
+                    if (response.status !== "SUCCESS") {
+                    console.log(response);
+                    }
+                })
 
                 Toastify({
                   text: "Commodities successfully dispensed.",

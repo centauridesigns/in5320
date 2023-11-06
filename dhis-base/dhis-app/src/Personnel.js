@@ -213,12 +213,10 @@ export function Personnel() {
                     personnel: allPersonnel,
                   }).then(function (response) {
                     if (response.status !== "SUCCESS") {
-                      //success = false
                       console.log(response);
                     }
                   }).catch(function (response) {
                     console.log(response);
-                    //success = false;
                   });
 
                   clearAll();

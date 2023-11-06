@@ -61,6 +61,9 @@ export function getData() {
         },
         personnel: {
             resource: "/dataStore/IN5320-9/personnel/",
+        },
+        transactions: {
+            resource: "/dataStore/IN5320-9/transactions/",
         }
     });
 }
@@ -69,6 +72,23 @@ export function getPersonnel() {
     return ({
         personnel: {
             resource: "/dataStore/IN5320-9/personnel/",
+        }
+    });
+}
+
+// Used to update the transaction list. This includes both addition and removal of transactions.
+export function postNewTransaction() {
+    return {
+        resource: "/dataStore/IN5320-9/transactions/",
+        type: "update", // create, update, delete
+        data: (transactions) => transactions
+    }
+}
+
+export function getTransactions() {
+    return ({
+        transactions: {
+            resource: "/dataStore/IN5320-9/transactions/",
         }
     });
 }
