@@ -68,7 +68,7 @@ export function Commodities(props) {
           name: getCommodityName(id, mergedData),
           newValue: parseInt(oldValue) + parseInt(value),
           oldValue: parseInt(oldValue),
-          time: d
+          time: d.toLocaleString()
         }])
 
       }else{

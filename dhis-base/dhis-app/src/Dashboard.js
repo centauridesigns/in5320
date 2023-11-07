@@ -28,7 +28,7 @@ export function Dashboard() {
           </TableHead>
           <TableBody>
             {data.transactions.transactions.map(transaction => (
-              <TableRow key={transaction.id}>
+              <TableRow>
                 <TableCell>{transaction.action}</TableCell>
                 <TableCell>{transaction.name}</TableCell>
                 <TableCell>{transaction.newValue}</TableCell>

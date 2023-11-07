@@ -112,7 +112,7 @@ export function Dispense(props) {
             oldValue: parseInt(oldValue),
             dispenser: "",
             recipient: "",
-            time: d
+            time: d.toLocaleString()
         }])
     }
   };
