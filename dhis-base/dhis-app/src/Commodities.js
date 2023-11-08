@@ -61,14 +61,11 @@ export function Commodities(props) {
           value: parseInt(oldValue) + parseInt(value) 
         }])
 
-        let d = new Date();
         setTransactionArr([...transactionArr, {
-          action: "Update",
           id: id,
           name: getCommodityName(id, mergedData),
           newValue: parseInt(oldValue) + parseInt(value),
           oldValue: parseInt(oldValue),
-          time: d.toLocaleString()
         }])
 
       }else{
@@ -204,7 +201,17 @@ export function Commodities(props) {
               //logging the transaction
               let allTransactions = [];
               allTransactions = data.transactions.transactions;
-              allTransactions = [...allTransactions, ...transactionArr];
+
+              let d = new Date();
+              let transaction = {
+                id: parseInt(allTransactions.length) + 1,
+                action: "Update",
+                time: d.toLocaleString(),
+                commodities: transactionArr
+              }
+
+              //allTransactions = [...allTransactions, ...transaction];
+              allTransactions.push(transaction);
 
               mutateTransaction({
                 transactions: allTransactions,

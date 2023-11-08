@@ -28,13 +28,15 @@ export function Dashboard() {
           </TableHead>
           <TableBody>
             {data.transactions.transactions.map(transaction => (
-              <TableRow>
-                <TableCell>{transaction.action}</TableCell>
-                <TableCell>{transaction.name}</TableCell>
-                <TableCell>{transaction.newValue}</TableCell>
-                <TableCell>{transaction.oldValue}</TableCell>
-                <TableCell>{transaction.time}</TableCell>
-              </TableRow>
+              transaction.commodities.map(commodity => (
+                <TableRow>
+                  <TableCell>{transaction.action}</TableCell>
+                  <TableCell>{commodity.name}</TableCell>
+                  <TableCell>{commodity.newValue}</TableCell>
+                  <TableCell>{commodity.oldValue}</TableCell>
+                  <TableCell>{transaction.time}</TableCell>
+                </TableRow>
+              ))
             ))}
           </TableBody>
         </Table>

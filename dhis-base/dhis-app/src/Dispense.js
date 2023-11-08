@@ -103,16 +103,11 @@ export function Dispense(props) {
             value: oldValue - entry.amount
         }])
 
-        let d = new Date();
         setTransactionArr([...transactionArr, {
-            action: "Dispense",
             id: entry.commodity,
             name: getCommodityName(entry.commodity, mergedData),
             newValue: parseInt(oldValue) - parseInt(entry.amount),
             oldValue: parseInt(oldValue),
-            dispenser: "",
-            recipient: "",
-            time: d.toLocaleString()
         }])
     }
   };
@@ -256,17 +251,22 @@ export function Dispense(props) {
                 clearAll();
                 setModalHidden(true);
 
-                //adding dispenser and recipient to the transactions
-                const updatedTransactions = transactionArr.map(transaction => ({
-                    ...transaction,
-                    dispenser: dispenser,
-                    recipient: recipient,
-                }));
-
                 //logging the transaction
                 let allTransactions = [];
                 allTransactions = data.transactions.transactions;
-                allTransactions = [...allTransactions, ...updatedTransactions];
+
+                let d = new Date();
+                let transaction = {
+                    id: parseInt(allTransactions.length) + 1,
+                    action: "Dispense",
+                    time: d.toLocaleString(),
+                    dispenser: dispenser,
+                    recipient: recipient,
+                    commodities: transactionArr
+                }
+
+                //allTransactions = [...allTransactions, ...updatedTransactions];
+                allTransactions.push(transaction);
 
                 mutateTransaction({
                     transactions: allTransactions,
