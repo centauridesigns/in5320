@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Tag} from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 import "./Dashboard.css";
@@ -37,7 +37,7 @@ export function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      {data.transactions.transactions.map(transaction => (
+      {[...data.transactions.transactions].reverse().map(transaction => (
         <div className="table" key={transaction.id}>
           <Table>
             <TableHead>
@@ -48,7 +48,7 @@ export function Dashboard() {
               </TableRow>
               <TableRow>
                 <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed By' : 'Updated By'}</b></TableCell>
+                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
                 <TableCell className="tableCell"><b>Value Change</b></TableCell>
               </TableRow>
             </TableHead>
@@ -56,8 +56,12 @@ export function Dashboard() {
                 {transaction.commodities.map(commodity => (
                   <TableRow key={commodity.id}>
                     <TableCell className="tableCell">{commodity.name}</TableCell>
-                    <TableCell className="tableCell">{commodity.newValue}</TableCell>
-                    <TableCell className="tableCell">{transaction.action === "Update" ? "+" :""}{commodity.newValue - commodity.oldValue}</TableCell>
+                      {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
+                      {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
+                    <TableCell className="indicator">
+                      {transaction.action === "Update" && <Tag positive>+{commodity.newValue - commodity.oldValue}</Tag>}
+                      {transaction.action === "Dispense"  && <Tag negative>{commodity.newValue - commodity.oldValue}</Tag>}
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>

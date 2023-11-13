@@ -16,6 +16,7 @@ export function Commodities(props) {
   const [filteredData, setFilteredData] = useState([]);
   const [showUpdateLayout, setShowUpdateLayout] = useState(false);
   const [modalHidden, setModalHidden] = useState(true);
+  const [updaterError, setUpdaterError] = useState(false);
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postDispenseTransaction()
   );
@@ -74,6 +75,11 @@ export function Commodities(props) {
             c.value = parseInt(oldValue) + parseInt(value); // Update the value
           }
         });
+        transactionArr.forEach((c) => {
+          if(c.id == id){
+            c.newValue = parseInt(oldValue) + parseInt(value); // Update the value
+          }
+        });
       }
     }
   };
@@ -82,6 +88,8 @@ export function Commodities(props) {
     setCommodityTotalAmountArr([]);
     setCommodityAdditionArr([]);
     setShowUpdateLayout(false);
+    setUpdater("");
+    setUpdaterError(false);
   }
 
   const handleSearchChange = (event) => {
@@ -182,6 +190,7 @@ export function Commodities(props) {
             </TableBody>
           </Table>
           <SingleSelect
+            error={updaterError}
             filterable
             clearable
             clearText="Clear"
@@ -202,54 +211,58 @@ export function Commodities(props) {
               setModalHidden(true);
             }}>Cancel</Button>
             <Button medium primary onClick={(e) => {
-              mutate({
-                dispenseMutation: commodityTotalAmountArr,
-              }).then(function (response) {
-                if (response.response.status !== "SUCCESS") {
-                  console.log(response);
+              if (!updater){
+                setUpdaterError(true);
+              }else{
+                mutate({
+                  dispenseMutation: commodityTotalAmountArr,
+                }).then(function (response) {
+                  if (response.response.status !== "SUCCESS") {
+                    console.log(response);
+                  }
+                })
+                clearAll();
+                setModalHidden(true);
+  
+                //logging the transaction
+                let allTransactions = [];
+                allTransactions = data.transactions.transactions;
+  
+                let d = new Date();
+                let transaction = {
+                  id: parseInt(allTransactions.length) + 1,
+                  action: "Update",
+                  time: d.toLocaleString(),
+                  updatedBy: updater,
+                  commodities: transactionArr
                 }
-              })
-              clearAll();
-              setModalHidden(true);
-
-              //logging the transaction
-              let allTransactions = [];
-              allTransactions = data.transactions.transactions;
-
-              let d = new Date();
-              let transaction = {
-                id: parseInt(allTransactions.length) + 1,
-                action: "Update",
-                time: d.toLocaleString(),
-                updatedBy: updater,
-                commodities: transactionArr
+  
+                //allTransactions = [...allTransactions, ...transaction];
+                allTransactions.push(transaction);
+  
+                mutateTransaction({
+                  transactions: allTransactions,
+                }).then(function (response) {
+                  if (response.status !== "SUCCESS") {
+                    console.log(response);
+                  }
+                })
+  
+                Toastify({
+                  text: "Commodities successfully updated.",
+                  duration: 3000,
+                  destination: "https://github.com/apvarun/toastify-js",
+                  newWindow: true,
+                  close: true,
+                  gravity: "top", // `top` or `bottom`
+                  position: "center", // `left`, `center` or `right`
+                  stopOnFocus: true, // Prevents dismissing of toast on hover
+                  style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                  },
+                  onClick: function () { } // Callback after click
+                }).showToast();
               }
-
-              //allTransactions = [...allTransactions, ...transaction];
-              allTransactions.push(transaction);
-
-              mutateTransaction({
-                transactions: allTransactions,
-              }).then(function (response) {
-                if (response.status !== "SUCCESS") {
-                  console.log(response);
-                }
-              })
-
-              Toastify({
-                text: "Commodities successfully updated.",
-                duration: 3000,
-                destination: "https://github.com/apvarun/toastify-js",
-                newWindow: true,
-                close: true,
-                gravity: "top", // `top` or `bottom`
-                position: "center", // `left`, `center` or `right`
-                stopOnFocus: true, // Prevents dismissing of toast on hover
-                style: {
-                  background: "linear-gradient(to right, #00b09b, #96c93d)",
-                },
-                onClick: function () { } // Callback after click
-              }).showToast();
             }}>
               Confirm</Button>
           </ButtonStrip>
