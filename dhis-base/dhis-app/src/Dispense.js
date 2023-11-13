@@ -163,8 +163,8 @@ export function Dispense(props) {
                   setDispenserError(false);
                 }}
                 selected={dispenser}>
-                {data.personnel.personnel.map((user) =>
-                  <SingleSelectOption key={user.name} label={user.name + " (" + user.affiliation + ")"} value={user.name} />
+                {data.users.users.map((user) =>
+                  <SingleSelectOption key={user.id} label={user.name} value={user.name} />
                 )}
               </SingleSelect>
             </div>
@@ -187,7 +187,7 @@ export function Dispense(props) {
                 }}
                 selected={recipient}>
                 {data.personnel.personnel.map((user) =>
-                  <SingleSelectOption key={user.name} label={user.name} value={user.name} />
+                  <SingleSelectOption key={user.name} label={user.name + " (" + user.affiliation + ")"} value={user.name} />
                 )}
               </SingleSelect>
             </div>

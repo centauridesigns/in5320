@@ -18,6 +18,14 @@ export function postNewPersonnel() {
     }
 }
 
+export function postNewUsers() {
+    return {
+        resource: "/dataStore/IN5320-9/users/",
+        type: "update",
+        data: (users) => users
+    }
+}
+
 export function getData() {
     return ({
         dataSets: { // Enter the datasets
@@ -64,6 +72,9 @@ export function getData() {
         },
         transactions: {
             resource: "/dataStore/IN5320-9/transactions/",
+        },
+        users: {
+            resource: "/dataStore/IN5320-9/users/"
         }
     });
 }
