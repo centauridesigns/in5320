@@ -116,7 +116,7 @@ function MyApp() {
         />
       </div>
       <div className={classes.right}>
-        {activePage === "Dashboard" && <Dashboard />}
+        {activePage === "Dashboard" && <Dashboard activePage={activePage} activePageHandler={activePageHandler} />}
         {activePage === "Commodities" && <Commodities mergedData={mergedData} />}
         {activePage === "Dispense" && <Dispense mergedData={mergedData} />}
         {activePage === "Personnel" && <Personnel />}

@@ -3,7 +3,63 @@
 }
 
 .table-header {
-    background-color: #1565c0;
-    color: white;
+    background-color: #D5DDE5;
+    color: #404B5A;
     font-weight: bold;
+}
+
+.table-info {
+    display: flex;
+    gap: 10px !important;
+}
+
+.table-date {
+    font-style: italic;
+    text-align: right;
+}
+
+.card-container {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.nav-card {
+    min-height: 50px;
+    padding: 20px;
+}
+
+.nav-card:hover {
+    background-color: #E8EDF2;
+}
+
+.nav-card.h3 {
+    font-weight: bold;
+}
+
+.card-button {
+    cursor: pointer;
+    flex: 1;
+}
+
+.sort-button {
+    gap: 10px;
+}
+
+.pos-tag {
+    color: green !important;
+}
+
+.neg-tag {
+    color: red !important;
+}
+
+.transaction-controls {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.sort-item:hover {
+    background-color: #F3F5F7 !important;
 }

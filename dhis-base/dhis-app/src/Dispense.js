@@ -125,7 +125,7 @@ export function Dispense(props) {
             duration={200}
             onHidden={() => setShowAlert(false)}
             warning>
-            Please confirm all commodity-entries you would like to add to transaction.
+            Please confirm all of the commodity entries you would like to add to the transaction.
           </AlertBar>
         )}
         {/*Commodity container.*/}

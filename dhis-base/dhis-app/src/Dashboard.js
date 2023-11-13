@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Tag} from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24 } from "@dhis2/ui-icons"
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Tag, Card, DropdownButton, FlyoutMenu, IconArrowRight16, IconArrowLeft16 } from "@dhis2/ui";
+import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconFilter24 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 import "./Dashboard.css";
 
@@ -26,44 +26,119 @@ function formatDate(dateString) {
   return formattedDate;
 }
 
-export function Dashboard() {
+export function Dashboard(props) {
   const { loading, error, data } = useDataQuery(getTransactions());
-
+  const [sortOrder, setSortOrder] = useState("latest");
 
   if (!data) {
     return <div><h1>Loading...</h1></div>;
   }
 
+  const sortByLatest = () => {
+    setSortOrder("latest");
+  };
+
+  const sortByOldest = () => {
+    setSortOrder("oldest");
+  };
+
+  const sortedTransactions = [...data.transactions.transactions].sort((a, b) => {
+    if (sortOrder === "latest") {
+      return new Date(b.time) - new Date(a.time);
+    } 
+    
+    else {
+      return new Date(a.time) - new Date(b.time);
+    }
+  });
+
   return (
     <div>
       <h1>Dashboard</h1>
-      {[...data.transactions.transactions].reverse().map(transaction => (
+      <div className="card-container">
+        {/*Commodities button*/}
+        <div className="card-button" onClick={(e) => {
+          props.activePage === "Commodities"
+          props.activePageHandler("Commodities")
+        }}>
+          <Card className="nav-card">
+            <IconTextListUnordered24 />
+            <h3>Commodities</h3>
+            <p>View, search, and restock commodities.</p>
+          </Card>
+        </div>
+
+        {/*Dispense button*/}
+        <div className="card-button" onClick={(e) => {
+          props.activePage === "Dispense"
+          props.activePageHandler("Dispense")
+        }}>
+          <Card className="nav-card">
+            <IconExportItems24 />
+            <h3>Dispense</h3>
+            <p>Dispense commodities, individually or in bulk.</p>
+          </Card>
+        </div>
+
+        {/*Personnel button*/}
+        <div className="card-button" onClick={(e) => {
+          props.activePage === "Personnel"
+          props.activePageHandler("Personnel")
+        }}>
+          <Card className="nav-card" onClick={() => props.activePageHandler("Personnel")}>
+            <IconUserGroup24 />
+            <h3>Personnel</h3>
+            <p>View, manage, and add recipient personnel.</p>
+          </Card>
+        </div>
+      </div>
+
+      <h3>Transaction History</h3>
+      <div className="transaction-controls">
+        <DropdownButton
+          component={
+            <FlyoutMenu>
+              <MenuItem className="sort-item" label="Date (latest)" onClick={sortByLatest} />
+              <MenuItem className="sort-item" label="Date (oldest)" onClick={sortByOldest} />
+            </FlyoutMenu>
+          }
+          className="sort-button">
+          <IconFilter24 /> Sorting
+        </DropdownButton>
+      </div>
+
+      {sortedTransactions.map(transaction => (
         <div className="table" key={transaction.id}>
           <Table>
             <TableHead>
               <TableRow className="table-header">
-                <TableCell className="tableCell">{`${transaction.action}: ${formatDate(transaction.time)}`}</TableCell>
+                <TableCell className="table-info">
+                  {transaction.action === "Update" && <IconArrowRight16/>}
+                  {transaction.action === "Dispense" && <IconArrowLeft16/>}
+                  {transaction.action == "Update" ? "Restock" : transaction.action}
+                </TableCell>
                 <TableCell className="tableCell"></TableCell>
-                <TableCell className="tableCell"></TableCell>
+                <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
                 <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
-                <TableCell className="tableCell"><b>Value Change</b></TableCell>
+                {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
+                {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
-                {transaction.commodities.map(commodity => (
-                  <TableRow key={commodity.id}>
-                    <TableCell className="tableCell">{commodity.name}</TableCell>
-                      {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
-                      {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
-                    <TableCell className="indicator">
-                      {transaction.action === "Update" && <Tag positive>+{commodity.newValue - commodity.oldValue}</Tag>}
-                      {transaction.action === "Dispense"  && <Tag negative>{commodity.newValue - commodity.oldValue}</Tag>}
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {transaction.commodities.map(commodity => (
+                <TableRow key={commodity.id}>
+                  <TableCell className="tableCell">{commodity.name}</TableCell>
+                  {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
+                  {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
+                  <TableCell className="indicator">
+                    {transaction.action === "Update" && <Tag className="pos-tag" positive>+{commodity.newValue - commodity.oldValue}</Tag>}
+                    {transaction.action === "Dispense" && <Tag className="neg-tag" negative>{commodity.newValue - commodity.oldValue}</Tag>}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
