@@ -38,3 +38,7 @@
 .old-item {
     color: grey !important;
 }
+
+.updaterSelect {
+    margin-top: 10px;
+}

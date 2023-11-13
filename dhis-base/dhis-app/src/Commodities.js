@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
+import { getData, getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
 import { useDataMutation, useDataQuery} from '@dhis2/app-runtime';
-import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption} from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
@@ -9,7 +9,7 @@ import "toastify-js/src/toastify.css"
 
 export function Commodities(props) {
   const { mergedData } = props;
-
+  const [updater, setUpdater] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [commodityTotalAmountArr, setCommodityTotalAmountArr] = useState([]);
   const [commodityAdditionArr, setCommodityAdditionArr] = useState([]);
@@ -23,7 +23,7 @@ export function Commodities(props) {
   const [mutateTransaction, { mutateLoadingTransaction, mutateErrorTransaction }] = useDataMutation(
     postNewTransaction()
   );
-  const { loading, error, data } = useDataQuery(getTransactions());
+  const { loading, error, data } = useDataQuery(getData());
 
   const handleConfirmEntry = (id, value) => {
     console.log(id, value)
@@ -181,6 +181,20 @@ export function Commodities(props) {
               ))}
             </TableBody>
           </Table>
+          <SingleSelect
+            filterable
+            clearable
+            clearText="Clear"
+            className="updaterSelect"
+            placeholder="Name of updater"
+            onChange={(e) => {
+              setUpdater(e.selected);
+            }}
+            selected={updater}>
+            {data.users.users.map((user) =>
+              <SingleSelectOption key={user.id} label={user.name} value={user.name} />
+            )}
+          </SingleSelect>
         </ModalContent>
         <ModalActions>
           <ButtonStrip end>
@@ -207,6 +221,7 @@ export function Commodities(props) {
                 id: parseInt(allTransactions.length) + 1,
                 action: "Update",
                 time: d.toLocaleString(),
+                updatedBy: updater,
                 commodities: transactionArr
               }
 
