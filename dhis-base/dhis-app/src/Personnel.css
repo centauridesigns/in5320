@@ -29,6 +29,7 @@
 .controls-button {
     margin-bottom: 5px;
     margin-left: 5px;
+    gap: 10px;
 }
 
 .input-button-wrapper {
@@ -45,5 +46,9 @@
 }
 
 .table {
-    margin-bottom: 100px;
+    margin-bottom: 25px;
 }
+
+.remove-button-cell {
+    text-align: right;
+  }

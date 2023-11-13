@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { postDispenseTransaction } from './api.js';
-import { useDataMutation } from '@dhis2/app-runtime';
+import { getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
+import { useDataMutation, useDataQuery} from '@dhis2/app-runtime';
 import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEdit24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
@@ -19,6 +19,11 @@ export function Commodities(props) {
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postDispenseTransaction()
   );
+  const [transactionArr, setTransactionArr] = useState([]);
+  const [mutateTransaction, { mutateLoadingTransaction, mutateErrorTransaction }] = useDataMutation(
+    postNewTransaction()
+  );
+  const { loading, error, data } = useDataQuery(getTransactions());
 
   const handleConfirmEntry = (id, value) => {
     console.log(id, value)
@@ -55,6 +60,14 @@ export function Commodities(props) {
           orgUnit: "XtuhRhmbrJM",
           value: parseInt(oldValue) + parseInt(value) 
         }])
+
+        setTransactionArr([...transactionArr, {
+          id: id,
+          name: getCommodityName(id, mergedData),
+          newValue: parseInt(oldValue) + parseInt(value),
+          oldValue: parseInt(oldValue),
+        }])
+
       }else{
         commodityTotalAmountArr.forEach((c) => {
           if(c.dataElement == id){
@@ -85,7 +98,7 @@ export function Commodities(props) {
     }
   }, [searchTerm, mergedData]);
 
-  if (!mergedData) {
+  if (!mergedData || !data) {
     return <div><h1>Loading...</h1></div>;
   }
 
@@ -106,7 +119,7 @@ export function Commodities(props) {
           </Button>
         ) : (
           <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            <IconEdit24 /> Update Stock
+            <IconEditItems24 /> Update Stock
           </Button>
         )}
       </div>
@@ -179,12 +192,34 @@ export function Commodities(props) {
                 dispenseMutation: commodityTotalAmountArr,
               }).then(function (response) {
                 if (response.response.status !== "SUCCESS") {
-                  success = false
                   console.log(response);
                 }
               })
               clearAll();
               setModalHidden(true);
+
+              //logging the transaction
+              let allTransactions = [];
+              allTransactions = data.transactions.transactions;
+
+              let d = new Date();
+              let transaction = {
+                id: parseInt(allTransactions.length) + 1,
+                action: "Update",
+                time: d.toLocaleString(),
+                commodities: transactionArr
+              }
+
+              //allTransactions = [...allTransactions, ...transaction];
+              allTransactions.push(transaction);
+
+              mutateTransaction({
+                transactions: allTransactions,
+              }).then(function (response) {
+                if (response.status !== "SUCCESS") {
+                  console.log(response);
+                }
+              })
 
               Toastify({
                 text: "Commodities successfully updated.",

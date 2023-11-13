@@ -9,6 +9,7 @@ export function postDispenseTransaction() {
     };
 }
 
+// Used to update the personnel list. This includes both addition and removal of individuals.
 export function postNewPersonnel() {
     return {
         resource: "/dataStore/IN5320-9/personnel/",
@@ -17,7 +18,15 @@ export function postNewPersonnel() {
     }
 }
 
-export function getUsers() {
+export function postNewUsers() {
+    return {
+        resource: "/dataStore/IN5320-9/users/",
+        type: "update",
+        data: (users) => users
+    }
+}
+
+export function getData() {
     return ({
         dataSets: { // Enter the datasets
             resource: "/dataSets/ULowA8V3ucd?fields=dataSetElements[dataElement[name, id, *]]",  // URL resource, grabs name and ID of commodity
@@ -58,6 +67,15 @@ export function getUsers() {
                 paging: "false",
             }
         },
+        personnel: {
+            resource: "/dataStore/IN5320-9/personnel/",
+        },
+        transactions: {
+            resource: "/dataStore/IN5320-9/transactions/",
+        },
+        users: {
+            resource: "/dataStore/IN5320-9/users/"
+        }
     });
 }
 
@@ -65,6 +83,23 @@ export function getPersonnel() {
     return ({
         personnel: {
             resource: "/dataStore/IN5320-9/personnel/",
+        }
+    });
+}
+
+// Used to update the transaction list. This includes both addition and removal of transactions.
+export function postNewTransaction() {
+    return {
+        resource: "/dataStore/IN5320-9/transactions/",
+        type: "update", // create, update, delete
+        data: (transactions) => transactions
+    }
+}
+
+export function getTransactions() {
+    return ({
+        transactions: {
+            resource: "/dataStore/IN5320-9/transactions/",
         }
     });
 }
