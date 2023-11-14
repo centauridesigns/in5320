@@ -4,7 +4,7 @@ import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Singl
 import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUndo24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
-
+import Toastify from 'toastify-js'
 
 export function Personnel() {
   const [entries, setEntries] = useState([]);
@@ -63,6 +63,21 @@ export function Personnel() {
       }).catch(function (response) {
         console.log(response);
       });
+
+      Toastify({
+        text: selectedForDeletion.name + " was successfully deleted.",
+        duration: 3000,
+        destination: "https://github.com/apvarun/toastify-js",
+        newWindow: true,
+        close: true,
+        gravity: "top",
+        position: "center", 
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        onClick: function () { }
+      }).showToast();
 
       clearAll();
     }
@@ -141,10 +156,10 @@ export function Personnel() {
         </div>
         <Modal hide={!showDeleteConfirmation} large>
           <ModalContent>
-            <p>Are you sure you want to delete {selectedForDeletion?.name}?</p>
+            <p>Are you sure you want to delete <b>{selectedForDeletion?.name}</b> from the register? This cannot be undone.</p>
             <ButtonStrip>
-              <Button destructive onClick={confirmPersonnelDelete}>Confirm</Button>
-              <Button onClick={() => setShowDeleteConfirmation(false)}> Cancel</Button>
+              <Button className="delete-button-2" destructive onClick={confirmPersonnelDelete}><IconDelete24/>Delete</Button>
+              <Button className="cancel-button" onClick={() => setShowDeleteConfirmation(false)}><IconUndo24/> Cancel</Button>
             </ButtonStrip>
           </ModalContent>
 
@@ -220,10 +235,25 @@ export function Personnel() {
                     console.log(response);
                   });
 
+                  Toastify({
+                    text: "Personnel successfully added.",
+                    duration: 3000,
+                    destination: "https://github.com/apvarun/toastify-js",
+                    newWindow: true,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    stopOnFocus: true,
+                    style: {
+                      background: "linear-gradient(to right, #00b09b, #96c93d)",
+                    },
+                    onClick: function () { } // Callback after click
+                  }).showToast();
+
                   clearAll();
                   setModalHidden(true)
                 }
-              }}><IconCheckmarkCircle24 /> Verify Addition</Button>
+              }}><IconCheckmarkCircle24 /> Add Individual</Button>
               <Button className="cancel-button" onClick={(e) => {
                 setModalHidden(true);
                 clearAll();

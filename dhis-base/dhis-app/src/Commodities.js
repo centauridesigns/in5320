@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { getData, getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
 import { useDataMutation, useDataQuery} from '@dhis2/app-runtime';
-import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption} from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24 } from "@dhis2/ui-icons"
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption, IconUndo24, AlertBar} from "@dhis2/ui";
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconImportItems24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
+
+function isNumeric(string) {
+  return /^-?\d+$/.test(string);
+}
 
 export function Commodities(props) {
   const { mergedData } = props;
@@ -17,6 +21,8 @@ export function Commodities(props) {
   const [showUpdateLayout, setShowUpdateLayout] = useState(false);
   const [modalHidden, setModalHidden] = useState(true);
   const [updaterError, setUpdaterError] = useState(false);
+  const [showIntAlert, setShowIntAlert] = useState(false);
+  const [editDisabled, setEditDisabled] = useState(true);
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postDispenseTransaction()
   );
@@ -26,8 +32,20 @@ export function Commodities(props) {
   );
   const { loading, error, data } = useDataQuery(getData());
 
+  // unused so far
+  function isNumericArray(array) {
+    for (let i = 0; i < array.length; i++) {
+        if (!isNumeric(array[i])) {
+            setShowIntAlert(true);
+            return;
+        }
+    }
+  }
+  
   const handleConfirmEntry = (id, value) => {
     console.log(id, value)
+    setEditDisabled(false);
+
     if (!id || value === 0) { }
     else {
       let isFound = false;
@@ -90,6 +108,7 @@ export function Commodities(props) {
     setShowUpdateLayout(false);
     setUpdater("");
     setUpdaterError(false);
+    setEditDisabled(true);
   }
 
   const handleSearchChange = (event) => {
@@ -124,8 +143,8 @@ export function Commodities(props) {
           onChange={handleSearchChange}
         />
         {showUpdateLayout ? (
-          <Button destructive className="cancel-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            Cancel
+          <Button className="cancel-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
+            <IconUndo24 /> Cancel
           </Button>
         ) : (
           <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
@@ -161,7 +180,7 @@ export function Commodities(props) {
           </TableBody>
         </Table>
         {showUpdateLayout && (
-          <Button className="update-button" primary large onClick={(e) => {
+          <Button disabled={editDisabled} className="verify-button" large onClick={(e) => {
             //handleUpdateAllQuantities()
             setModalHidden(false)
           }}>
@@ -209,10 +228,10 @@ export function Commodities(props) {
         </ModalContent>
         <ModalActions>
           <ButtonStrip end>
-            <Button medium destructive onClick={(e) => {
+            <Button className="cancel-button" medium onClick={(e) => {
               setModalHidden(true);
-            }}>Cancel</Button>
-            <Button medium primary onClick={(e) => {
+            }}><IconUndo24/> Cancel</Button>
+            <Button className="confirm-button" medium primary onClick={(e) => {
               if (!updater){
                 setUpdaterError(true);
               }else{
@@ -266,7 +285,7 @@ export function Commodities(props) {
                 }).showToast();
               }
             }}>
-              Confirm</Button>
+              <IconImportItems24/> Restock</Button>
           </ButtonStrip>
         </ModalActions>
       </Modal>

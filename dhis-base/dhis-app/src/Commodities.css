@@ -12,19 +12,38 @@
     width: 100%;
 }
 
-.update-button {
-    margin-top: 1rem;
+.update-stock-button {
+    width: 300px !important;
     gap: 10px;
 }
 
-.update-stock-button {
-    width: 300px !important;
+.confirm-button {
     gap: 10px;
 }
 
 .cancel-button {
     width: 300px !important;
     gap: 10px;
+}
+
+.verify-button {
+    margin-top: 1rem;
+    gap: 10px;
+    font-weight: bold !important;
+    color: white !important;
+    background-color: #009688 !important;
+}
+
+.verify-button:hover {
+    background-color: #00897b !important;
+}
+
+.verify-button:disabled {
+    background-color: #b2dfdb !important;
+}
+
+.verify-button[disabled]:hover {
+    background-color: #b2dfdb !important;
 }
 
 .searchbar .dropdown {

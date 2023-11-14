@@ -1,4 +1,4 @@
-.section{
+.section {
     flex: 1;
 }
 
@@ -19,11 +19,11 @@
 .desc {
     margin-top: 5px;
     font-size: 14px;
-    color:gray;
+    color: gray;
 }
 
 .controls {
-    align-items:center;
+    align-items: center;
     /* background-color: #FFFFFF;
     padding: 10px; */
 }
@@ -33,33 +33,50 @@
     margin-left: 5px;
 }
 
-.cancel{
+.button-section {
+    display: flex;
+    gap: 10px !important;
+}
+
+.discard {
     background-color: #6C7787 !important;
     color: white !important;
 }
 
-.cancel:hover{
+.discard:hover {
     background-color: #4A5768 !important;
 }
 
-.confirm-button{
+.confirm-button {
     gap: 10px;
 }
 
-.cancel-button{
+.cancel-button {
     gap: 10px;
     width: 114.05px !important;
 }
 
+.verify-button {
+    gap: 10px;
+    font-weight: bold !important;
+    color: white !important;
+    background-color: #009688 !important;
+}
+
+.verify-button:hover {
+    background-color: #00897b !important;
+}
+
 .input-button-wrapper {
     flex: 1;
-    align-items: center; /* vertical alignment */
+    align-items: center;
+    /* vertical alignment */
 }
 
 .icon-button {
     gap: 10px;
 }
 
-.commodity-controls{
+.commodity-controls {
     margin-bottom: 100px;
 }

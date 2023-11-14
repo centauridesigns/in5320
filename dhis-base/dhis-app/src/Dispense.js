@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Calendar, CalendarInput } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconCheckmarkCircle16, IconUndo24} from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconCheckmarkCircle16, IconUndo24, IconPushRight24} from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { getData, postDispenseTransaction, postNewTransaction } from "./api.js";
 import Toastify from 'toastify-js'
@@ -200,7 +200,7 @@ export function Dispense(props) {
         </div>
 
         <div className="recipient-controls">
-          <Button large primary className="icon-button" type="button" onClick={(e) => {
+          <Button large className="verify-button" type="button" onClick={(e) => {
             const allEntriesConfirmed = entries.every(entry => confirmedEntries[entry.id]);
             if (!dispenser) {
               setDispenserError(true);
@@ -237,7 +237,7 @@ export function Dispense(props) {
           </ModalContent>
           <ModalActions>
             <ButtonStrip end>
-              <Button className="cancel-button" medium destructive onClick={(e) => {
+              <Button className="cancel-button" medium onClick={(e) => {
                 setModalHidden(true);
               }}><IconUndo24/>Cancel</Button>
               <Button className="confirm-button"medium primary onClick={(e) => {
@@ -291,7 +291,7 @@ export function Dispense(props) {
                   onClick: function () { } // Callback after click
                 }).showToast();
               }}>
-                <IconCheckmarkCircle24/>Confirm</Button>
+                <IconPushRight24/>Dispense</Button>
             </ButtonStrip>
           </ModalActions>
         </Modal>
@@ -308,12 +308,17 @@ export function Dispense(props) {
   }
 }
 
+function isNumeric(string) {
+  return /^-?\d+$/.test(string);
+}
+
 function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfirm, setConfirmedForEntry }) {
   const [amount, setAmount] = useState(0);
   const [selectedCommodity, setSelectedCommodity] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
   const [buttonVisible, setButtonVisible] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const [showIntAlert, setShowIntAlert] = useState(false);
 
   const handleSelectChange = (value) => {
     setSelectedCommodity(value.selected);
@@ -331,6 +336,11 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
       return;
     }
 
+    if (!isNumeric(amount)) {
+      setShowIntAlert(true);
+      return;
+    }
+
     setInputDisabled(true);
     setButtonVisible(false);
     setConfirmedForEntry(id, true);
@@ -345,6 +355,15 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
           onHidden={() => setShowAlert(false)}
           warning>
           Please select a commodity and specify an amount.
+        </AlertBar>
+      )}
+
+      {showIntAlert && (
+        <AlertBar
+          duration={200}
+          onHidden={() => setShowAlert(false)}
+          warning>
+          Please ensure the amount is an integer value.
         </AlertBar>
       )}
       <div className="controls">
@@ -369,7 +388,7 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
           {index > 0 && <h4 className="title">‎</h4>}
           <div className="input-button-wrapper">
             <div className="amount">
-              <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" max="1000" onChange={handleAmountChange}></Input>
+              <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" step="1" max="100" onChange={handleAmountChange}></Input>
             </div>
           </div>
           <p className="desc">Write or add the amount of packages you would like to dispense.</p>
@@ -377,7 +396,7 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
 
         <div className="button-section">
           {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
-          <Button basic className="controls-button cancel" type="button" onClick={onRemove}><IconCross24 />Cancel</Button>
+          <Button basic className="cancel-button" type="button" onClick={onRemove}><IconCross24 />Discard</Button>
         </div>
 
       </div>
