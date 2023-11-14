@@ -110,6 +110,8 @@ export function Commodities(props) {
     return <div><h1>Loading...</h1></div>;
   }
 
+  let i = 0;
+
   return (
     <div>
       <h1>Commodities</h1>
@@ -134,7 +136,7 @@ export function Commodities(props) {
       <div className="table">
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow key={i++}>
               <TableCell><b>Name</b></TableCell>
               <TableCell><b>Quantity</b></TableCell>
               {showUpdateLayout && <TableCell><b>Incoming Quantity</b></TableCell>}
@@ -172,7 +174,7 @@ export function Commodities(props) {
           <h4>Confirm: Incoming Commodities</h4>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow key={i++}>
                 <TableCell><b>Commodity</b></TableCell>
                 <TableCell><b>New Quantity</b></TableCell>
                 <TableCell><b>Old Quantity</b></TableCell>

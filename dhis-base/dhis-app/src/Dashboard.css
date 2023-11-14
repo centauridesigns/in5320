@@ -63,3 +63,7 @@
 .sort-item:hover {
     background-color: #F3F5F7 !important;
 }
+
+.transaction-h3{
+    margin-top: 60px;
+}

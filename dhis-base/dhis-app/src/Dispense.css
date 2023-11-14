@@ -33,6 +33,24 @@
     margin-left: 5px;
 }
 
+.cancel{
+    background-color: #6C7787 !important;
+    color: white !important;
+}
+
+.cancel:hover{
+    background-color: #4A5768 !important;
+}
+
+.confirm-button{
+    gap: 10px;
+}
+
+.cancel-button{
+    gap: 10px;
+    width: 114.05px !important;
+}
+
 .input-button-wrapper {
     flex: 1;
     align-items: center; /* vertical alignment */

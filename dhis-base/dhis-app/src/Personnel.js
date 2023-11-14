@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUndo24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
 
@@ -104,7 +104,8 @@ export function Personnel() {
             onChange={handleSearchChange}
           />
           {showEditLayout ? (
-            <Button destructive className="cancel-button" onClick={() => setShowEditLayout(!showEditLayout)}>
+            <Button className="cancel-button" onClick={() => setShowEditLayout(!showEditLayout)}>
+              <IconUndo24/>
               Cancel
             </Button>
           ) : (
@@ -128,10 +129,10 @@ export function Personnel() {
                   <TableCell>{p.name}</TableCell>
                   <TableCell>{p.affiliation}</TableCell>
                   {showEditLayout && <TableCell className ="remove-button-cell">
-                    <Button className="controls-button" type="button" onClick={(e) => {
+                    <Button className="delete-button" type="button" onClick={(e) => {
                       setSelectedForDeletion(p);
                       setShowDeleteConfirmation(true);
-                    }}><IconDelete24 /></Button>
+                    }}><IconDelete24 />Delete</Button>
                   </TableCell>}
                 </TableRow>
               ))}
@@ -197,7 +198,7 @@ export function Personnel() {
                     name: personnel,
                     affiliation: hospital
                   }])
-                }}><IconCheckmark24 /></Button>
+                }}><IconCheckmark24 />Confirm</Button>
               </div>
             </div>
             <ButtonStrip>
@@ -223,10 +224,10 @@ export function Personnel() {
                   setModalHidden(true)
                 }
               }}><IconCheckmarkCircle24 /> Verify Addition</Button>
-              <Button medium destructive onClick={(e) => {
+              <Button className="cancel-button" onClick={(e) => {
                 setModalHidden(true);
                 clearAll();
-              }}>Cancel</Button>
+              }}><IconUndo24/>Cancel</Button>
             </ButtonStrip>
           </ModalContent>
         </Modal>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Calendar, CalendarInput } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconCheckmarkCircle16, IconUndo24} from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { getData, postDispenseTransaction, postNewTransaction } from "./api.js";
 import Toastify from 'toastify-js'
@@ -237,10 +237,10 @@ export function Dispense(props) {
           </ModalContent>
           <ModalActions>
             <ButtonStrip end>
-              <Button medium destructive onClick={(e) => {
+              <Button className="cancel-button" medium destructive onClick={(e) => {
                 setModalHidden(true);
-              }}>Cancel</Button>
-              <Button medium primary onClick={(e) => {
+              }}><IconUndo24/>Cancel</Button>
+              <Button className="confirm-button"medium primary onClick={(e) => {
                 mutate({
                   dispenseMutation: commodityTotalAmountArr,
                 }).then(function (response) {
@@ -291,7 +291,7 @@ export function Dispense(props) {
                   onClick: function () { } // Callback after click
                 }).showToast();
               }}>
-                Confirm</Button>
+                <IconCheckmarkCircle24/>Confirm</Button>
             </ButtonStrip>
           </ModalActions>
         </Modal>
@@ -376,8 +376,8 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
         </div>
 
         <div className="button-section">
-          {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 /></Button>)}
-          <Button destructive className="controls-button" type="button" onClick={onRemove}><IconCross24 /></Button>
+          {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
+          <Button basic className="controls-button cancel" type="button" onClick={onRemove}><IconCross24 />Cancel</Button>
         </div>
 
       </div>

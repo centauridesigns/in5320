@@ -93,7 +93,7 @@ export function Dashboard(props) {
         </div>
       </div>
 
-      <h3>Transaction History</h3>
+      <h3 className="transaction-h3">Transaction History</h3>
       <div className="transaction-controls">
         <DropdownButton
           component={

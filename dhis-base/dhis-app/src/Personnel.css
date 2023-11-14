@@ -32,6 +32,29 @@
     gap: 10px;
 }
 
+.cancel-button{
+    background-color: #6C7787 !important;
+    color: white !important;
+    gap: 10px;
+}
+
+.cancel-button:hover{
+    background-color: #4A5768 !important;
+}
+
+.delete-button {
+    background-color: #e57373 !important;
+    color: #330202 !important;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    gap: 10px;
+    border: 1px solid #891515 !important;
+}
+
+.delete-button:hover {
+    background-color: #c62828 !important;
+}
+
 .input-button-wrapper {
     flex: 1;
     align-items: center; /* vertical alignment */
@@ -52,3 +75,4 @@
 .remove-button-cell {
     text-align: right;
   }
+
