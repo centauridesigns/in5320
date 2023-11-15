@@ -28,6 +28,24 @@
     padding: 10px; */
 }
 
+.controls-cond {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls-select {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+
 .controls-button {
     margin-bottom: 5px;
     margin-left: 5px;
@@ -79,4 +97,14 @@
 
 .commodity-controls {
     margin-bottom: 100px;
+}
+
+hr.dispense-divider {
+    margin-top: 50px;
+    margin-bottom: -50px;
+}
+
+hr.date-divider {
+    margin-top: 50px;
+    margin-bottom: 50px;
 }

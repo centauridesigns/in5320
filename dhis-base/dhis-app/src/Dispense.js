@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Calendar, CalendarInput } from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, FlyoutMenu, DropdownButton } from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconCheckmarkCircle16, IconUndo24, IconPushRight24} from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { getData, postDispenseTransaction, postNewTransaction } from "./api.js";
@@ -27,6 +27,8 @@ export function Dispense(props) {
   const [confirmedEntries, setConfirmedEntries] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [transactionArr, setTransactionArr] = useState([]);
+  const [customDate, setCustomDate] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('now');
   const [mutateTransaction, { mutateLoadingTransaction, mutateErrorTransaction }] = useDataMutation(
     postNewTransaction()
   );
@@ -56,6 +58,18 @@ export function Dispense(props) {
       const { [commodity.id]: _, ...rest } = prev;
       return rest;
     });
+  };
+
+  const handleDateChange = ({selected}) => {
+    setSelectedDate(selected);
+
+    if (selected === 'now') {
+      setCustomDate(false);
+    }
+
+    else if (selected === 'custom') {
+      setCustomDate(true);
+    }
   };
 
   const setConfirmedForEntry = (entryId, isConfirmed) => {
@@ -144,6 +158,7 @@ export function Dispense(props) {
           ))}
           <Button className="icon-button" type="button" onClick={handleAddEntry}><IconAdd24 /> Add Commodity</Button>
           <p className="desc">Add another commodity.</p>
+          <hr className="dispense-divider"></hr>
         </div>
 
         {/*Dispenser and recipient select */}
@@ -195,9 +210,21 @@ export function Dispense(props) {
           </div>
         </div>
 
+        <hr className="date-divider"></hr>
+
         {/*Date selection.*/}
-        <div className="controls">
+        <h4 className="title">Date</h4>
+        <div className="controls-select">
+          <SingleSelect selected={selectedDate} onChange={handleDateChange} className="sort-button">
+            <SingleSelectOption className="sort-item" label="Now" value="now" />
+            <SingleSelectOption className="sort-item" label="Custom" value="custom" />
+          </SingleSelect>
         </div>
+        {customDate && <div className="controls-cond">
+          <Input type="date"></Input>
+          <Input type="time"></Input>
+        </div>}
+        <p className="desc">Specify the date and time of dispensing. </p>
 
         <div className="recipient-controls">
           <Button large className="verify-button" type="button" onClick={(e) => {
@@ -398,7 +425,7 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
               <Input disabled={inputDisabled} className="numberInput" placeholder="# of packages" type="number" min="0" step="1" max="100" onChange={handleAmountChange}></Input>
             </div>
           </div>
-          <p className="desc">Write or add the amount of packages you would like to dispense.</p>
+          <p className="desc">Specify the amount you would like to dispense.</p>
         </div>
 
         <div className="button-section">
