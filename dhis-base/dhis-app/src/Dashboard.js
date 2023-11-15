@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, Tag, Card, DropdownButton, FlyoutMenu, IconArrowRight16, IconArrowLeft16 } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconFilter24 } from "@dhis2/ui-icons"
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu } from "@dhis2/ui";
+import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 import "./Dashboard.css";
 
@@ -98,8 +98,14 @@ export function Dashboard(props) {
         <DropdownButton
           component={
             <FlyoutMenu>
-              <MenuItem className="sort-item" label="Date (latest)" onClick={sortByLatest} />
-              <MenuItem className="sort-item" label="Date (oldest)" onClick={sortByOldest} />
+              <MenuItem
+                className={`sort-item ${sortOrder === 'latest' ? 'selected' : ''}`}
+                label="Date (latest)"
+                onClick={sortByLatest} />
+              <MenuItem
+                className={`sort-item ${sortOrder === 'oldest' ? 'selected' : ''}`}
+                label="Date (oldest)"
+                onClick={sortByOldest} />
             </FlyoutMenu>
           }
           className="sort-button">
@@ -114,8 +120,8 @@ export function Dashboard(props) {
               <TableRow className="table-header">
                 <TableCell className="table-info">
                   {transaction.action == "Update" ? "Replenishment" : transaction.action}
-                  {transaction.action === "Update" && <IconArrowRight16/>}
-                  {transaction.action === "Dispense" && <IconArrowLeft16/>}
+                  {transaction.action === "Update" && <IconArrowDown16/>}
+                  {transaction.action === "Dispense" && <IconArrowUp16/>}
                 </TableCell>
                 <TableCell className="tableCell"></TableCell>
                 <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>

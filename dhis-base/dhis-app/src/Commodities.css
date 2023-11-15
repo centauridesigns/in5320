@@ -12,6 +12,15 @@
     width: 100%;
 }
 
+.sorting-controls {
+    max-width: 200px;
+    margin-bottom: 10px;
+}
+
+.sort-item:hover {
+    background-color: #F3F5F7 !important;
+}
+
 .update-stock-button {
     width: 300px !important;
     gap: 10px;

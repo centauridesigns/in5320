@@ -237,7 +237,7 @@ export function Dispense(props) {
           <Input type="time" onChange={handleTimeChange}></Input>
         </div>}
         {customDate && <p className="desc">Specify the date and time of dispensing. </p>}
-        {!customDate && <p className="desc">Let the time be the current time or specify manually. </p>}
+        {!customDate && <p className="desc">When dispensing, the current date and time will automatically be registered. </p>}
 
         <div className="recipient-controls">
           <Button large className="verify-button" type="button" onClick={(e) => {
@@ -262,6 +262,7 @@ export function Dispense(props) {
                 <TableRow>
                   <TableCell><b>Commodity</b></TableCell>
                   <TableCell><b>Quantity</b></TableCell>
+                  <TableCell><b>Time</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -270,6 +271,8 @@ export function Dispense(props) {
                   <TableRow key={commodity.id}>
                     <TableCell>{getCommodityName(commodity.commodity, mergedData)}</TableCell>
                     <TableCell>{commodity.amount}</TableCell>
+                    {customDate && <TableCell>{selectedDay + " (" + selectedTime + ")"}</TableCell>}
+                    {!customDate && <TableCell>Now</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>

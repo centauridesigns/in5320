@@ -26,6 +26,20 @@
     align-items:center;
 }
 
+.sorting-controls {
+    max-width: 200px;
+    margin-bottom: 10px;
+}
+
+.sort-item:hover {
+    background-color: #F3F5F7 !important;
+}
+
+.sort-item.selected {
+    background-color: #f0f0f0 !important;
+    font-weight: bold !important;
+}
+
 .controls-button {
     margin-bottom: 5px;
     margin-left: 5px;

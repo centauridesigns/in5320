@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUndo24 } from "@dhis2/ui-icons"
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, DropdownButton, FlyoutMenu } from "@dhis2/ui";
+import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUndo24, IconFilter24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
 import Toastify from 'toastify-js'
@@ -21,6 +21,7 @@ export function Personnel() {
   const [showEditLayout, setShowEditLayout] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedForDeletion, setSelectedForDeletion] = useState(null);
+  const [sortMode, setSortMode] = useState("alphabetical");
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postNewPersonnel()
   );
@@ -38,17 +39,38 @@ export function Personnel() {
     setHospital(event.value);
   };
 
+  const sortAlphabetically = (data) => {
+    return data.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  const sortHospital = (data) => {
+    return data.sort((a, b) => a.affiliation.localeCompare(b.affiliation));
+  }
+
   // Effect for searching. We map the table to filteredData instead of data.personnel.personnel below. Conditional rendering ensures the
   // site does not crash as the loading occurs.
   useEffect(() => {
     if (data?.personnel?.personnel) {
-      const filtered = searchTerm.trim() ? data.personnel.personnel.filter(person =>
+      let filtered = searchTerm.trim() ? data.personnel.personnel.filter(person =>
         person.name.toLowerCase().includes(searchTerm.toLowerCase())
       ) : data.personnel.personnel;
-      setFilteredData(filtered);
+
+      let sorted = [...filtered]
+
+      if (sortMode === "alphabetical") {
+        sorted = sortAlphabetically(sorted);
+      } else if (sortMode === "alphabetical-reverse") {
+        sorted = sortAlphabetically(sorted).reverse();
+      } else if (sortMode === "hospital") {
+        sorted = sortHospital(sorted);
+      } else if (sortMode === "hospital-reverse") {
+        sorted = sortHospital(sorted).reverse();
+      }
+
+      setFilteredData(sorted);
     }
-  }, [searchTerm, data?.personnel?.personnel]);
-  
+  }, [searchTerm, data?.personnel?.personnel, sortMode]);
+
   // Called when removing personnel.
   const confirmPersonnelDelete = () => {
     if (selectedForDeletion) {
@@ -129,6 +151,34 @@ export function Personnel() {
             </Button>
           )}
         </div>
+
+        <div className="sorting-controls">
+          <DropdownButton
+            component={
+              <FlyoutMenu>
+                <MenuItem
+                  className={`sort-item ${sortMode === 'alphabetical' ? 'selected' : ''}`}
+                  label="Personnel (A-Z)"
+                  onClick={() => setSortMode("alphabetical")} />
+                <MenuItem
+                  className={`sort-item ${sortMode === 'alphabetical-reverse' ? 'selected' : ''}`}
+                  label="Personnel (Z-A)"
+                  onClick={() => setSortMode("alphabetical-reverse")} />
+                <MenuItem
+                  className={`sort-item ${sortMode === 'hospital' ? 'selected' : ''}`}
+                  label="Hospital (A-Z)"
+                  onClick={() => setSortMode("hospital")} />
+                <MenuItem
+                  className={`sort-item ${sortMode === 'hospital-reverse' ? 'selected' : ''}`}
+                  label="Hospital (Z-A)"
+                  onClick={() => setSortMode("hospital-reverse")} />
+              </FlyoutMenu>
+            }
+            className="sort-button">
+            <IconFilter24 /> Sorting
+          </DropdownButton>
+        </div>
+        
         <div className="table">
           <Table>
             <TableHead>
@@ -253,7 +303,7 @@ export function Personnel() {
                   clearAll();
                   setModalHidden(true)
                 }
-              }}><IconCheckmarkCircle24 /> Add Individual</Button>
+              }}><IconCheckmarkCircle24 /> Add Personnel</Button>
               <Button className="cancel-button" onClick={(e) => {
                 setModalHidden(true);
                 clearAll();

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getData, getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
 import { useDataMutation, useDataQuery} from '@dhis2/app-runtime';
-import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption, IconUndo24, AlertBar} from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconImportItems24 } from "@dhis2/ui-icons"
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, MenuItem, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption, IconUndo24, AlertBar, IconFilter24 } from "@dhis2/ui";
+import { IconCheckmarkCircle24, IconEditItems24, IconImportItems24 } from "@dhis2/ui-icons"
 import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
@@ -19,6 +19,7 @@ export function Commodities(props) {
   const [updaterError, setUpdaterError] = useState(false);
   const [showIntAlert, setShowIntAlert] = useState(false);
   const [editDisabled, setEditDisabled] = useState(true);
+  const [sortMode, setSortMode] = useState("alphabetical");
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postDispenseTransaction()
   );
@@ -139,15 +140,34 @@ export function Commodities(props) {
     setSearchTerm(event.value);
   };
 
+  const sortAlphabetically = (data) => {
+    return data.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  const sortByQuantity = (data) => {
+    return data.sort((a, b) => parseInt(b.value) - parseInt(a.value));
+  }
 
   useEffect(() => {
     if (mergedData) {
       let result = mergedData.filter(commodity =>
         commodity.name.toLowerCase().startsWith(searchTerm.toLowerCase())
       );
+
+      if (sortMode === 'alphabetical') {
+        result = sortAlphabetically(result);
+      } else if (sortMode === 'quantity') {
+        result = sortByQuantity(result);
+      } else if (sortMode === 'alphabetical-reverse') {
+        result = sortAlphabetically(result).reverse();
+      } else if (sortMode === 'quantity-reverse') {
+        result = sortByQuantity(result).reverse();
+      }
+
       setFilteredData(result);
     }
-  }, [searchTerm, mergedData]);
+  }, [searchTerm, mergedData, sortMode]); 
+
 
   if (!mergedData || !data) {
     return <div><h1>Loading...</h1></div>;
@@ -183,6 +203,32 @@ export function Commodities(props) {
             <IconEditItems24 /> Replenish Stock
           </Button>
         )}
+      </div>
+      <div className="sorting-controls">
+        <DropdownButton
+          component={
+            <FlyoutMenu>
+              <MenuItem
+                className={`sort-item ${sortMode === 'alphabetical' ? 'selected' : ''}`}
+                label="Name (A-Z)"
+                onClick={() => setSortMode("alphabetical")} />
+              <MenuItem
+                className={`sort-item ${sortMode === 'alphabetical-reverse' ? 'selected' : ''}`}
+                label="Name (Z-A)"
+                onClick={() => setSortMode("alphabetical-reverse")} />
+              <MenuItem
+                className={`sort-item ${sortMode === 'quantity' ? 'selected' : ''}`}
+                label="Quantity (highest)"
+                onClick={() => setSortMode("quantity")} />
+              <MenuItem
+                className={`sort-item ${sortMode === 'quantity-reverse' ? 'selected' : ''}`}
+                label="Quantity (lowest)"
+                onClick={() => setSortMode("quantity-reverse")} />
+            </FlyoutMenu>
+          }
+          className="sort-button">
+          <IconFilter24 /> Sorting
+        </DropdownButton>
       </div>
       <div className="table">
         <Table>
