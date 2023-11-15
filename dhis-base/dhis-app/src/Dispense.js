@@ -29,6 +29,8 @@ export function Dispense(props) {
   const [transactionArr, setTransactionArr] = useState([]);
   const [customDate, setCustomDate] = useState(false);
   const [selectedDate, setSelectedDate] = useState('now');
+  const [selectedDay, setSelectedDay] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [mutateTransaction, { mutateLoadingTransaction, mutateErrorTransaction }] = useDataMutation(
     postNewTransaction()
   );
@@ -88,6 +90,16 @@ export function Dispense(props) {
         return entry;
       }));
     }
+  };
+
+  //handles user setting date
+  const handleDayChange = (event) => {
+    setSelectedDay(event.value);
+  };
+
+  //handles user setting time
+  const handleTimeChange = (event) => {
+    setSelectedTime(event.value);
   };
 
   // Handles confirmation of entry
@@ -221,10 +233,11 @@ export function Dispense(props) {
           </SingleSelect>
         </div>
         {customDate && <div className="controls-cond">
-          <Input type="date"></Input>
-          <Input type="time"></Input>
+          <Input type="date" onChange={handleDayChange}></Input>
+          <Input type="time" onChange={handleTimeChange}></Input>
         </div>}
-        <p className="desc">Specify the date and time of dispensing. </p>
+        {customDate && <p className="desc">Specify the date and time of dispensing. </p>}
+        {!customDate && <p className="desc">Let the time be the current time or specify manually. </p>}
 
         <div className="recipient-controls">
           <Button large className="verify-button" type="button" onClick={(e) => {
@@ -282,7 +295,15 @@ export function Dispense(props) {
                 let allTransactions = [];
                 allTransactions = data.transactions.transactions;
 
-                let d = new Date();
+                //if a custom time has been set by user
+                let d;
+                if(customDate){
+                    const manualDate = selectedDay + "T" + selectedTime;
+                    d = new Date(manualDate);
+                }else{
+                    d = new Date();
+                }
+
                 let transaction = {
                     id: parseInt(allTransactions.length) + 1,
                     action: "Dispense",

@@ -63,8 +63,8 @@ export function Dashboard(props) {
         }}>
           <Card className="nav-card">
             <IconTextListUnordered24 />
-            <h3>Commodities</h3>
-            <p>View, search, and restock commodities.</p>
+            <h3>Replenish</h3>
+            <p>View, search, and replenish commodities.</p>
           </Card>
         </div>
 
@@ -113,9 +113,9 @@ export function Dashboard(props) {
             <TableHead>
               <TableRow className="table-header">
                 <TableCell className="table-info">
+                  {transaction.action == "Update" ? "Replenishment" : transaction.action}
                   {transaction.action === "Update" && <IconArrowRight16/>}
                   {transaction.action === "Dispense" && <IconArrowLeft16/>}
-                  {transaction.action == "Update" ? "Restock" : transaction.action}
                 </TableCell>
                 <TableCell className="tableCell"></TableCell>
                 <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>

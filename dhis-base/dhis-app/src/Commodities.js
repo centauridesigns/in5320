@@ -180,7 +180,7 @@ export function Commodities(props) {
           </Button>
         ) : (
           <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            <IconEditItems24 /> Update Stock
+            <IconEditItems24 /> Replenish Stock
           </Button>
         )}
       </div>
