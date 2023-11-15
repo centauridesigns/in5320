@@ -9,6 +9,8 @@ function formatDate(dateString) {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const suffixes = ["th", "st", "nd", "rd"];
 
+  const dateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3'); // Ensures MAC dates are correctly converted.
+
   const date = new Date(dateString);
   const day = date.getDate();
   const monthIndex = date.getMonth();
