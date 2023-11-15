@@ -7,10 +7,6 @@ import "./Commodities.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 
-function isNumeric(string) {
-  return /^-?\d+$/.test(string);
-}
-
 export function Commodities(props) {
   const { mergedData } = props;
   const [updater, setUpdater] = useState("");
@@ -31,22 +27,50 @@ export function Commodities(props) {
     postNewTransaction()
   );
   const { loading, error, data } = useDataQuery(getData());
-
-  // unused so far
-  function isNumericArray(array) {
-    for (let i = 0; i < array.length; i++) {
-        if (!isNumeric(array[i])) {
-            setShowIntAlert(true);
-            return;
-        }
-    }
-  }
   
   const handleConfirmEntry = (id, value) => {
-    console.log(id, value)
+    console.log(id, value);
     setEditDisabled(false);
 
-    if (!id || value === 0) { }
+    const re = /^[0-9\b]+$/;
+
+    if (!id || (!re.test(value) && value !== '')) {
+      setShowIntAlert(true);
+      setEditDisabled(true);
+      return; 
+    }
+
+    if (!id || value === 0 || !value) {
+      if (!value){
+        //empty input, arrays need to clear past objects now containing empty values
+        var l = commodityTotalAmountArr.length;
+
+        commodityTotalAmountArr.forEach((c) => {
+          if(c.dataElement == id){
+            setCommodityTotalAmountArr(prevEntries => prevEntries.filter(c => c.dataElement !== id));
+          }
+        });
+        commodityAdditionArr.forEach((c) => {
+          if(c.dataElement == id){
+            setCommodityAdditionArr(prevEntries => prevEntries.filter(c => c.dataElement !== id));
+          }
+        });
+        transactionArr.forEach((c) => {
+          if(c.id == id){
+            setTransactionArr(prevEntries => prevEntries.filter(c => c.id !== id));
+          }
+        });
+
+        if (l == 1){
+          //the only element in arr is possibly NaN, disable confirm
+          if (id == commodityAdditionArr[0].dataElement){
+            setEditDisabled(true);
+          }else{
+            setEditDisabled(false);
+          }
+        }
+      }
+    }
     else {
       let isFound = false;
       let oldValue = 0;
@@ -69,7 +93,7 @@ export function Commodities(props) {
           dataElement: id,
           period: "202310",
           orgUnit: "XtuhRhmbrJM",
-          value: parseInt(value)  
+          value: parseInt(value) 
         }])
   
         setCommodityTotalAmountArr([...commodityTotalAmountArr, {
@@ -77,7 +101,7 @@ export function Commodities(props) {
           dataElement: id,
           period: "202310",
           orgUnit: "XtuhRhmbrJM",
-          value: parseInt(oldValue) + parseInt(value) 
+          value: parseInt(oldValue) + parseInt(value)
         }])
 
         setTransactionArr([...transactionArr, {
@@ -134,6 +158,14 @@ export function Commodities(props) {
   return (
     <div>
       <h1>Commodities</h1>
+      {showIntAlert && (
+          <AlertBar
+            duration={200}
+            onHidden={() => setShowIntAlert(false)}
+            warning>
+            All inputs need to be positive integers.
+          </AlertBar>
+      )}
       <div className="controls">
         <Input className="searchbar"
           name="searchBar"
@@ -171,7 +203,7 @@ export function Commodities(props) {
                     <Input
                       onChange={(e) => handleConfirmEntry(commodity.id, e.value)}
                       placeholder="# of incoming commodities"
-                      type="number" min="0" max="1000"
+                      type="number" min="0"
                     />
                   </TableCell>
                 )}
@@ -181,8 +213,7 @@ export function Commodities(props) {
         </Table>
         {showUpdateLayout && (
           <Button disabled={editDisabled} className="verify-button" large onClick={(e) => {
-            //handleUpdateAllQuantities()
-            setModalHidden(false)
+            setModalHidden(false);
           }}>
             <IconCheckmarkCircle24 /> Update All Quantities
           </Button>

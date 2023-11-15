@@ -312,6 +312,13 @@ function isNumeric(string) {
   return /^-?\d+$/.test(string);
 }
 
+function isPositive(s) {
+    if (s>0){
+        return true;
+    }
+    return false;
+}
+
 function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfirm, setConfirmedForEntry }) {
   const [amount, setAmount] = useState(0);
   const [selectedCommodity, setSelectedCommodity] = useState("");
@@ -336,7 +343,7 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
       return;
     }
 
-    if (!isNumeric(amount)) {
+    if (!isNumeric(amount) || !isPositive(amount)) {
       setShowIntAlert(true);
       return;
     }
@@ -363,7 +370,7 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
           duration={200}
           onHidden={() => setShowAlert(false)}
           warning>
-          Please ensure the amount is an integer value.
+          Please ensure the amount is a positive integer value.
         </AlertBar>
       )}
       <div className="controls">
@@ -395,8 +402,8 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
         </div>
 
         <div className="button-section">
-          {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
-          <Button basic className="cancel-button" type="button" onClick={onRemove}><IconCross24 />Discard</Button>
+            <Button basic className="cancel-button" type="button" onClick={onRemove}><IconCross24 />Discard</Button>
+            {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
         </div>
 
       </div>

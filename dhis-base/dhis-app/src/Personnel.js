@@ -125,7 +125,7 @@ export function Personnel() {
             </Button>
           ) : (
             <Button className="update-stock-button" onClick={() => setShowEditLayout(!showEditLayout)}>
-              <IconEditItems24 /> Edit Personnel
+              <IconEditItems24 /> Remove Personnel
             </Button>
           )}
         </div>
@@ -167,7 +167,7 @@ export function Personnel() {
         <Button className="icon-button" type="button" onClick={(e) => {
           setModalHidden(false)
         }}><IconFaceAdd24 /> Add Personnel</Button>
-        <p className="desc">Add another individual.</p>
+        <p className="desc">Add another personnel.</p>
         <Modal hide={modalHidden} large>
           <ModalContent>
             <h4>Add: Personnel</h4>
