@@ -9,6 +9,7 @@ import { Dispense } from "./Dispense";
 import { Personnel } from "./Personnel";
 
 import { useDataQuery } from '@dhis2/app-runtime'
+import { Transactions } from "./Transactions";
 
 //API request
 const query = {
@@ -116,10 +117,11 @@ function MyApp() {
         />
       </div>
       <div className={classes.right}>
-        {activePage === "Dashboard" && <Dashboard activePage={activePage} activePageHandler={activePageHandler} />}
+        {activePage === "Dashboard" && <Dashboard activePage={activePage} activePageHandler={activePageHandler}/>}
         {activePage === "Commodities" && <Commodities mergedData={mergedData} />}
         {activePage === "Dispense" && <Dispense mergedData={mergedData} />}
         {activePage === "Personnel" && <Personnel />}
+        {activePage === "Transactions" && <Transactions />}
       </div>
     </div>
   );

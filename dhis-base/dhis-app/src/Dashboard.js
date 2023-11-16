@@ -1,58 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu } from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu , Input} from "@dhis2/ui";
 import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24 } from "@dhis2/ui-icons"
-import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
+import { getData, getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 import "./Dashboard.css";
 
-function formatDate(dateString) {
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const suffixes = ["th", "st", "nd", "rd"];
-
-  const normalizedDateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3'); // Ensures MAC dates are correctly converted.
-
-  const date = new Date(normalizedDateString);
-  const day = date.getDate();
-  const monthIndex = date.getMonth();
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-
-  const suffix = (day % 10 === 1 && day !== 11) ? suffixes[1] :
-    (day % 10 === 2 && day !== 12) ? suffixes[2] :
-      (day % 10 === 3 && day !== 13) ? suffixes[3] : suffixes[0];
-
-  const formattedDate = `${day}${suffix} of ${months[monthIndex]} ${year} (${hours % 12 || 12}:${minutes}:${seconds} ${ampm})`;
-  return formattedDate;
-}
-
 export function Dashboard(props) {
-  const { loading, error, data } = useDataQuery(getTransactions());
-  const [sortOrder, setSortOrder] = useState("latest");
+  const { loading, error, data } = useDataQuery(getData());
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortMode, setSortMode] = useState("alphabetical");
+  const [mergedData, setMergedData] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
+  const [flag, setFlag] = useState(false);
 
-  if (!data) {
+  const sortAlphabetically = (data) => {
+    return data.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  const sortByQuantity = (data) => {
+    return data.sort((a, b) => parseInt(b.value) - parseInt(a.value));
+  }
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.value);
+  };
+
+  useEffect(() => {
+    if(!flag){
+      if(data){
+        setMergedData(mergeData(data));
+        setFlag(true);
+      }
+    }
+    if (mergedData) {
+      let result = mergedData.filter(commodity =>
+        commodity.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+      );
+
+      if (sortMode === 'alphabetical') {
+        result = sortAlphabetically(result);
+      } else if (sortMode === 'quantity') {
+        result = sortByQuantity(result);
+      } else if (sortMode === 'alphabetical-reverse') {
+        result = sortAlphabetically(result).reverse();
+      } else if (sortMode === 'quantity-reverse') {
+        result = sortByQuantity(result).reverse();
+      }
+
+      setFilteredData(result);
+    }
+  }, [searchTerm, data, mergedData, sortMode]); 
+
+  if (!data || !mergedData) {
     return <div><h1>Loading...</h1></div>;
   }
 
-  const sortByLatest = () => {
-    setSortOrder("latest");
-  };
-
-  const sortByOldest = () => {
-    setSortOrder("oldest");
-  };
-
-  const sortedTransactions = [...data.transactions.transactions].sort((a, b) => {
-    if (sortOrder === "latest") {
-      return new Date(b.time) - new Date(a.time);
-    } 
-    
-    else {
-      return new Date(a.time) - new Date(b.time);
-    }
-  });
 
   return (
     <div>
@@ -81,7 +83,9 @@ export function Dashboard(props) {
             <p>Dispense commodities, individually or in bulk.</p>
           </Card>
         </div>
+      </div>
 
+      <div className="card-container">
         {/*Personnel button*/}
         <div className="card-button" onClick={(e) => {
           props.activePage === "Personnel"
@@ -93,64 +97,121 @@ export function Dashboard(props) {
             <p>View, manage, and add recipient personnel.</p>
           </Card>
         </div>
-      </div>
 
-      <h3 className="transaction-h3">Transaction History</h3>
-      <div className="transaction-controls">
+        {/*transaction history button*/}
+        <div className="card-button" onClick={(e) => {
+          props.activePage === "Transactions"
+          props.activePageHandler("Transactions")
+        }}>
+          <Card className="nav-card" onClick={() => props.activePageHandler("Transactions")}>
+            <IconUserGroup24 />
+            <h3>Transaction History</h3>
+            <p>View transaction history.</p>
+          </Card>
+        </div>
+      </div>
+        
+
+      <h3 className="transaction-h3">Commodities inventory</h3>
+      <div className="controls">
+        <Input className="searchbar"
+          name="searchBar"
+          type="text"
+          placeholder="Search for commodities"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
+      <div className="sorting-controls">
         <DropdownButton
           component={
             <FlyoutMenu>
               <MenuItem
-                className={`sort-item ${sortOrder === 'latest' ? 'selected' : ''}`}
-                label="Date (latest)"
-                onClick={sortByLatest} />
+                className={`sort-item ${sortMode === 'alphabetical' ? 'selected' : ''}`}
+                label="Name (A-Z)"
+                onClick={() => setSortMode("alphabetical")} />
               <MenuItem
-                className={`sort-item ${sortOrder === 'oldest' ? 'selected' : ''}`}
-                label="Date (oldest)"
-                onClick={sortByOldest} />
+                className={`sort-item ${sortMode === 'alphabetical-reverse' ? 'selected' : ''}`}
+                label="Name (Z-A)"
+                onClick={() => setSortMode("alphabetical-reverse")} />
+              <MenuItem
+                className={`sort-item ${sortMode === 'quantity' ? 'selected' : ''}`}
+                label="Quantity (highest)"
+                onClick={() => setSortMode("quantity")} />
+              <MenuItem
+                className={`sort-item ${sortMode === 'quantity-reverse' ? 'selected' : ''}`}
+                label="Quantity (lowest)"
+                onClick={() => setSortMode("quantity-reverse")} />
             </FlyoutMenu>
           }
           className="sort-button">
           <IconFilter24 /> Sorting
         </DropdownButton>
       </div>
-
-      {sortedTransactions.map(transaction => (
-        <div className="table" key={transaction.id}>
-          <Table>
-            <TableHead>
-              <TableRow className="table-header">
-                <TableCell className="table-info">
-                  {transaction.action == "Update" ? "Replenishment" : transaction.action}
-                  {transaction.action === "Update" && <IconArrowDown16/>}
-                  {transaction.action === "Dispense" && <IconArrowUp16/>}
-                </TableCell>
-                <TableCell className="tableCell"></TableCell>
-                <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>
+      <div className="table">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><b>Name</b></TableCell>
+              <TableCell><b>Quantity</b></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredData.map(commodity => (
+              <TableRow key={commodity.id}>
+                <TableCell>{commodity.name}</TableCell>
+                <TableCell>{commodity.value}</TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
-                {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
-                {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {transaction.commodities.map(commodity => (
-                <TableRow key={commodity.id}>
-                  <TableCell className="tableCell">{commodity.name}</TableCell>
-                  {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
-                  {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
-                  <TableCell className="indicator">
-                    {transaction.action === "Update" && <Tag className="pos-tag" positive>+{commodity.newValue - commodity.oldValue}</Tag>}
-                    {transaction.action === "Dispense" && <Tag className="neg-tag" negative>{commodity.newValue - commodity.oldValue}</Tag>}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ))}
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
+}
+
+
+function mergeData(data){
+  if (data) {
+    const commodities = data.dataSets.dataSetElements.map(dataElement => ({
+      id: dataElement.dataElement.id,
+      name: dataElement.dataElement.name,
+    }));
+
+    const details = data.dataValueSets.dataValues.map(dataElement => ({
+      dataElement: dataElement.dataElement,
+      value: dataElement.value,
+    }));
+
+    console.log("local users: ", data.localUsers);
+    console.log("all users: ", data.allUsers);
+
+    const merge = commodities.map(commodity => {
+      const matchingDataValue = details.find(detailsItem => detailsItem.dataElement === commodity.id);
+
+      if (matchingDataValue) {
+        return {
+          ...commodity,
+          name: commodity.name.replace("Commodities - ", ""),
+          value: matchingDataValue.value,
+        };
+      } else {
+        return {
+          ...commodity,
+          value: 0,
+        };
+      }
+    });
+
+    //sorting merge
+    merge.sort((a, b) => {
+      const nameA = a.name.toUpperCase();
+      const nameB = b.name.toUpperCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+
+    return merge;
+  }
 }

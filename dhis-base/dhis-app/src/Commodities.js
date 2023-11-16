@@ -177,7 +177,7 @@ export function Commodities(props) {
 
   return (
     <div>
-      <h1>Commodities</h1>
+      <h1>Replenish</h1>
       {showIntAlert && (
           <AlertBar
             duration={200}
@@ -199,7 +199,7 @@ export function Commodities(props) {
             <IconUndo24 /> Cancel
           </Button>
         ) : (
-          <Button className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
+          <Button primary className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
             <IconEditItems24 /> Replenish Stock
           </Button>
         )}
