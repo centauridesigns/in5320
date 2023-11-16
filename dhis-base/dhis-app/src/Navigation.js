@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu, MenuItem } from "@dhis2/ui";
+import { Menu, MenuItem, IconDashboardWindow16 } from "@dhis2/ui";
 
 export function Navigation(props) {
   return (
@@ -11,8 +11,8 @@ export function Navigation(props) {
       />
       <MenuItem
         label="Replenish"
-        active={props.activePage == "Commodities"}
-        onClick={() => props.activePageHandler("Commodities")}
+        active={props.activePage == "Replenish"}
+        onClick={() => props.activePageHandler("Replenish")}
       />
       <MenuItem
         label="Dispense"

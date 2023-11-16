@@ -31,7 +31,7 @@
 }
 
 .nav-card:hover {
-    background-color: #E8EDF2;
+    background-color: #F3F5F7;
 }
 
 .nav-card.h3 {
@@ -56,6 +56,8 @@
 }
 
 .transaction-controls {
+    display: flex;
+    gap: 10px;
     max-width: 200px;
     margin-bottom: 20px;
 }

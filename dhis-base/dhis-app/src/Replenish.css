@@ -30,29 +30,36 @@
     gap: 10px;
 }
 
+.confirm-button {
+    gap: 10px;
+    outline: 1px solid #0d47a1;
+    color: #0d47a1 !important;
+}
+
+.confirm-button:hover{
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+}
+
 .cancel-button {
-    width: 300px !important;
     gap: 10px;
 }
 
 .verify-button {
     margin-top: 1rem;
     gap: 10px;
-    font-weight: bold !important;
-    color: white !important;
-    background-color: #009688 !important;
-}
-
-.verify-button:hover {
-    background-color: #00897b !important;
 }
 
 .verify-button:disabled {
-    background-color: #b2dfdb !important;
+    background-color: #90caf9 !important;
 }
 
-.verify-button[disabled]:hover {
-    background-color: #b2dfdb !important;
+.verify-small-button {
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+    gap: 10px;
 }
 
 .searchbar .dropdown {
@@ -61,7 +68,7 @@
 
 * {
     box-sizing: border-box;
-}¨
+}
 
 .old-item {
     color: grey !important;
@@ -69,4 +76,15 @@
 
 .updaterSelect {
     margin-top: 10px;
+}
+
+h4.subheader {
+    font-weight: normal;
+}
+
+.banner {
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
 }

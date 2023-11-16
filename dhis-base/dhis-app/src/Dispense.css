@@ -54,35 +54,46 @@
 .button-section {
     display: flex;
     gap: 10px !important;
-}
-
-.discard {
-    background-color: #6C7787 !important;
-    color: white !important;
-}
-
-.discard:hover {
-    background-color: #4A5768 !important;
+    margin-bottom: 5px;
 }
 
 .confirm-button {
     gap: 10px;
+    outline: 1px solid #0d47a1;
+    outline-offset: -1px;
+    color: #0d47a1 !important;
 }
 
-.cancel-button {
+.confirm-button:hover{
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+}
+
+.cancel-button{
     gap: 10px;
     width: 114.05px !important;
+    outline: 1px solid #d32f2f;
+    outline-offset: -1px;
+    color: #d32f2f !important;
+}
+
+.cancel-button:hover{
+    color: white !important;
+    background-color: #c62828 !important;
+    border: 1px solid #891515 !important;
 }
 
 .verify-button {
+    margin-top: 1rem;
     gap: 10px;
-    font-weight: bold !important;
-    color: white !important;
-    background-color: #009688 !important;
 }
 
-.verify-button:hover {
-    background-color: #00897b !important;
+.verify-small-button {
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+    gap: 10px;
 }
 
 .input-button-wrapper {
@@ -107,4 +118,8 @@ hr.dispense-divider {
 hr.date-divider {
     margin-top: 50px;
     margin-bottom: 50px;
+}
+
+h4.subheader {
+    font-weight: normal;
 }

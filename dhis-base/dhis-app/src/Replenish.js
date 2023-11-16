@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { getData, getTransactions, postDispenseTransaction, postNewTransaction } from './api.js';
-import { useDataMutation, useDataQuery} from '@dhis2/app-runtime';
-import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, MenuItem, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption, IconUndo24, AlertBar, IconFilter24 } from "@dhis2/ui";
+import { useDataMutation, useDataQuery } from '@dhis2/app-runtime';
+import { Table, TableHead, TableBody, TableRow, TableCell, DropdownButton, FlyoutMenu, MenuItem, Button, Input, Modal, ModalContent, ModalActions, ButtonStrip, SingleSelect, SingleSelectOption, IconCross24, AlertBar, IconFilter24 } from "@dhis2/ui";
 import { IconCheckmarkCircle24, IconEditItems24, IconImportItems24 } from "@dhis2/ui-icons"
-import "./Commodities.css";
+import "./Replenish.css";
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 
-export function Commodities(props) {
+export function Replenish(props) {
   const { mergedData } = props;
   const [updater, setUpdater] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [commodityTotalAmountArr, setCommodityTotalAmountArr] = useState([]);
   const [commodityAdditionArr, setCommodityAdditionArr] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [showUpdateLayout, setShowUpdateLayout] = useState(false);
   const [modalHidden, setModalHidden] = useState(true);
   const [updaterError, setUpdaterError] = useState(false);
   const [showIntAlert, setShowIntAlert] = useState(false);
@@ -28,7 +27,7 @@ export function Commodities(props) {
     postNewTransaction()
   );
   const { loading, error, data } = useDataQuery(getData());
-  
+
   const handleConfirmEntry = (id, value) => {
     console.log(id, value);
     setEditDisabled(false);
@@ -38,35 +37,35 @@ export function Commodities(props) {
     if (!id || (!re.test(value) && value !== '')) {
       setShowIntAlert(true);
       setEditDisabled(true);
-      return; 
+      return;
     }
 
     if (!id || value === 0 || !value) {
-      if (!value){
+      if (!value) {
         //empty input, arrays need to clear past objects now containing empty values
         var l = commodityTotalAmountArr.length;
 
         commodityTotalAmountArr.forEach((c) => {
-          if(c.dataElement == id){
+          if (c.dataElement == id) {
             setCommodityTotalAmountArr(prevEntries => prevEntries.filter(c => c.dataElement !== id));
           }
         });
         commodityAdditionArr.forEach((c) => {
-          if(c.dataElement == id){
+          if (c.dataElement == id) {
             setCommodityAdditionArr(prevEntries => prevEntries.filter(c => c.dataElement !== id));
           }
         });
         transactionArr.forEach((c) => {
-          if(c.id == id){
+          if (c.id == id) {
             setTransactionArr(prevEntries => prevEntries.filter(c => c.id !== id));
           }
         });
 
-        if (l == 1){
+        if (l == 1) {
           //the only element in arr is possibly NaN, disable confirm
-          if (id == commodityAdditionArr[0].dataElement){
+          if (id == commodityAdditionArr[0].dataElement) {
             setEditDisabled(true);
-          }else{
+          } else {
             setEditDisabled(false);
           }
         }
@@ -82,21 +81,21 @@ export function Commodities(props) {
       })
 
       commodityAdditionArr.forEach((c) => {
-          if(c.dataElement == id){
-            c.value = parseInt(value); // Update the value
-            isFound = true; 
-          }
+        if (c.dataElement == id) {
+          c.value = parseInt(value); // Update the value
+          isFound = true;
+        }
       });
 
-      if (!isFound){
+      if (!isFound) {
         setCommodityAdditionArr([...commodityAdditionArr, {
           categoryOptionCombo: "J2Qf1jtZuj8",
           dataElement: id,
           period: "202310",
           orgUnit: "XtuhRhmbrJM",
-          value: parseInt(value) 
+          value: parseInt(value)
         }])
-  
+
         setCommodityTotalAmountArr([...commodityTotalAmountArr, {
           categoryOptionCombo: "J2Qf1jtZuj8",
           dataElement: id,
@@ -112,14 +111,14 @@ export function Commodities(props) {
           oldValue: parseInt(oldValue),
         }])
 
-      }else{
+      } else {
         commodityTotalAmountArr.forEach((c) => {
-          if(c.dataElement == id){
+          if (c.dataElement == id) {
             c.value = parseInt(oldValue) + parseInt(value); // Update the value
           }
         });
         transactionArr.forEach((c) => {
-          if(c.id == id){
+          if (c.id == id) {
             c.newValue = parseInt(oldValue) + parseInt(value); // Update the value
           }
         });
@@ -130,7 +129,6 @@ export function Commodities(props) {
   function clearAll() {
     setCommodityTotalAmountArr([]);
     setCommodityAdditionArr([]);
-    setShowUpdateLayout(false);
     setUpdater("");
     setUpdaterError(false);
     setEditDisabled(true);
@@ -166,7 +164,7 @@ export function Commodities(props) {
 
       setFilteredData(result);
     }
-  }, [searchTerm, mergedData, sortMode]); 
+  }, [searchTerm, mergedData, sortMode]);
 
 
   if (!mergedData || !data) {
@@ -177,14 +175,17 @@ export function Commodities(props) {
 
   return (
     <div>
-      <h1>Replenish</h1>
+      <div className="banner">
+        <IconImportItems24/>
+        <h1>Replenish</h1>
+      </div>
       {showIntAlert && (
-          <AlertBar
-            duration={200}
-            onHidden={() => setShowIntAlert(false)}
-            warning>
-            All inputs need to be positive integers.
-          </AlertBar>
+        <AlertBar
+          duration={200}
+          onHidden={() => setShowIntAlert(false)}
+          warning>
+          All inputs need to be positive integers.
+        </AlertBar>
       )}
       <div className="controls">
         <Input className="searchbar"
@@ -194,15 +195,6 @@ export function Commodities(props) {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        {showUpdateLayout ? (
-          <Button className="cancel-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            <IconUndo24 /> Cancel
-          </Button>
-        ) : (
-          <Button primary className="update-stock-button" onClick={() => setShowUpdateLayout(!showUpdateLayout)}>
-            <IconEditItems24 /> Replenish Stock
-          </Button>
-        )}
       </div>
       <div className="sorting-controls">
         <DropdownButton
@@ -236,7 +228,7 @@ export function Commodities(props) {
             <TableRow key={i++}>
               <TableCell><b>Name</b></TableCell>
               <TableCell><b>Quantity</b></TableCell>
-              {showUpdateLayout && <TableCell><b>Incoming Quantity</b></TableCell>}
+              <TableCell><b>Incoming Quantity</b></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -244,30 +236,27 @@ export function Commodities(props) {
               <TableRow key={commodity.id}>
                 <TableCell>{commodity.name}</TableCell>
                 <TableCell>{commodity.value}</TableCell>
-                {showUpdateLayout && (
-                  <TableCell>
-                    <Input
-                      onChange={(e) => handleConfirmEntry(commodity.id, e.value)}
-                      placeholder="# of incoming commodities"
-                      type="number" min="0"
-                    />
-                  </TableCell>
-                )}
+
+                <TableCell>
+                  <Input
+                    onChange={(e) => handleConfirmEntry(commodity.id, e.value)}
+                    placeholder="# of incoming commodities"
+                    type="number" min="0"
+                  />
+                </TableCell>
+
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        {showUpdateLayout && (
-          <Button disabled={editDisabled} className="verify-button" large onClick={(e) => {
-            setModalHidden(false);
-          }}>
-            <IconCheckmarkCircle24 /> Update All Quantities
-          </Button>
-        )}
+        <Button primary disabled={editDisabled} className="verify-button" large onClick={(e) => { setModalHidden(false); }}>
+          <IconCheckmarkCircle24 /> Update All Quantities
+        </Button>
       </div>
       <Modal hide={modalHidden} medium>
         <ModalContent>
-          <h4>Confirm: Incoming Commodities</h4>
+          <h4>Confirm Replenishment</h4>
+          <h4 className="subheader">You are replenishing the stock for the following commodities:</h4>
           <Table>
             <TableHead>
               <TableRow key={i++}>
@@ -302,16 +291,17 @@ export function Commodities(props) {
               <SingleSelectOption key={user.id} label={user.name} value={user.name} />
             )}
           </SingleSelect>
+          <p className="desc">Select the user documenting the replenishment.</p>
         </ModalContent>
         <ModalActions>
           <ButtonStrip end>
             <Button className="cancel-button" medium onClick={(e) => {
               setModalHidden(true);
-            }}><IconUndo24/> Cancel</Button>
-            <Button className="confirm-button" medium primary onClick={(e) => {
-              if (!updater){
+            }}><IconCross24 /> Cancel</Button>
+            <Button className="verify-small-button" medium primary onClick={(e) => {
+              if (!updater) {
                 setUpdaterError(true);
-              }else{
+              } else {
                 mutate({
                   dispenseMutation: commodityTotalAmountArr,
                 }).then(function (response) {
@@ -321,11 +311,11 @@ export function Commodities(props) {
                 })
                 clearAll();
                 setModalHidden(true);
-  
+
                 //logging the transaction
                 let allTransactions = [];
                 allTransactions = data.transactions.transactions;
-  
+
                 let d = new Date();
                 let transaction = {
                   id: parseInt(allTransactions.length) + 1,
@@ -334,10 +324,10 @@ export function Commodities(props) {
                   updatedBy: updater,
                   commodities: transactionArr
                 }
-  
+
                 //allTransactions = [...allTransactions, ...transaction];
                 allTransactions.push(transaction);
-  
+
                 mutateTransaction({
                   transactions: allTransactions,
                 }).then(function (response) {
@@ -345,7 +335,7 @@ export function Commodities(props) {
                     console.log(response);
                   }
                 })
-  
+
                 Toastify({
                   text: "Commodities successfully updated.",
                   duration: 3000,
@@ -362,7 +352,7 @@ export function Commodities(props) {
                 }).showToast();
               }
             }}>
-              <IconImportItems24/> Restock</Button>
+              <IconImportItems24 /> Restock</Button>
           </ButtonStrip>
         </ModalActions>
       </Modal>
@@ -375,9 +365,9 @@ function getCommodityName(id, mergedData) {
   console.log("name in func: ", id);
   let name = "";
   mergedData.map((element) => {
-      if (element.id == id) {
-          name = element.name;
-      }
+    if (element.id == id) {
+      name = element.name;
+    }
   })
   return name;
 }
@@ -385,9 +375,9 @@ function getCommodityName(id, mergedData) {
 function getValueFromId(id, data) {
   let value = 0;
   data.map((element) => {
-      if (element.dataElement == id) {
-          value = element.value;
-      }
+    if (element.dataElement == id) {
+      value = element.value;
+    }
   })
   return value;
 }

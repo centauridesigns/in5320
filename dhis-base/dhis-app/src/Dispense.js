@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, FlyoutMenu, DropdownButton } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconCheckmarkCircle16, IconUndo24, IconPushRight24} from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconCheckmark24, IconCheckmarkCircle24, IconExportItems24} from "@dhis2/ui-icons"
 import "./Dispense.css";
 import { getData, postDispenseTransaction, postNewTransaction } from "./api.js";
 import Toastify from 'toastify-js'
@@ -145,7 +145,10 @@ export function Dispense(props) {
   if (data) {
     return (
       <div>
-        {<h1>Dispense</h1>}
+        <div className="banner">
+          <IconExportItems24/>
+          {<h1>Dispense</h1>}
+        </div>
         {showAlert && (
           <AlertBar
             duration={200}
@@ -240,7 +243,7 @@ export function Dispense(props) {
         {!customDate && <p className="desc">When dispensing, the current date and time will automatically be registered. </p>}
 
         <div className="recipient-controls">
-          <Button large className="verify-button" type="button" onClick={(e) => {
+          <Button primary large className="verify-button" type="button" onClick={(e) => {
             const allEntriesConfirmed = entries.every(entry => confirmedEntries[entry.id]);
             if (!dispenser) {
               setDispenserError(true);
@@ -256,7 +259,8 @@ export function Dispense(props) {
 
         <Modal hide={modalHidden} medium>
           <ModalContent>
-            <h4>Confirm: Dispensing Commodities from {dispenser} to {recipient}</h4>
+            <h4>Confirm Dispense</h4>
+            <h4 className="subheader">{dispenser} will dispense the following commodities to {recipient}:</h4>
             <Table>
               <TableHead>
                 <TableRow>
@@ -282,8 +286,8 @@ export function Dispense(props) {
             <ButtonStrip end>
               <Button className="cancel-button" medium onClick={(e) => {
                 setModalHidden(true);
-              }}><IconUndo24/>Cancel</Button>
-              <Button className="confirm-button"medium primary onClick={(e) => {
+              }}><IconCross24/>Cancel</Button>
+              <Button primary className="verify-small-button"medium onClick={(e) => {
                 mutate({
                   dispenseMutation: commodityTotalAmountArr,
                 }).then(function (response) {
@@ -342,7 +346,7 @@ export function Dispense(props) {
                   onClick: function () { } // Callback after click
                 }).showToast();
               }}>
-                <IconPushRight24/>Dispense</Button>
+                <IconExportItems24/>Dispense</Button>
             </ButtonStrip>
           </ModalActions>
         </Modal>
@@ -453,8 +457,8 @@ function NewEntry({ id, index, mergedData, onRemove, onCommodityChange, onConfir
         </div>
 
         <div className="button-section">
-            <Button basic className="cancel-button" type="button" onClick={onRemove}><IconCross24 />Discard</Button>
-            {buttonVisible && (<Button secondary className="controls-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
+            <Button secondary className="cancel-button" type="button" onClick={onRemove}><IconCross24 />Discard</Button>
+            {buttonVisible && (<Button className="confirm-button" type="button" onClick={handleConfirm}><IconCheckmark24 />Confirm</Button>)}
         </div>
 
       </div>

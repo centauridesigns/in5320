@@ -1,35 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu } from "@dhis2/ui";
-import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24 } from "@dhis2/ui-icons"
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption } from "@dhis2/ui";
+import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24, IconList24 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 
 function formatDate(dateString) {
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const suffixes = ["th", "st", "nd", "rd"];
-  
-    const normalizedDateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3'); // Ensures MAC dates are correctly converted.
-  
-    const date = new Date(normalizedDateString);
-    const day = date.getDate();
-    const monthIndex = date.getMonth();
-    const year = date.getFullYear();
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-  
-    const suffix = (day % 10 === 1 && day !== 11) ? suffixes[1] :
-      (day % 10 === 2 && day !== 12) ? suffixes[2] :
-        (day % 10 === 3 && day !== 13) ? suffixes[3] : suffixes[0];
-  
-    const formattedDate = `${day}${suffix} of ${months[monthIndex]} ${year} (${hours % 12 || 12}:${minutes}:${seconds} ${ampm})`;
-    return formattedDate;
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const suffixes = ["th", "st", "nd", "rd"];
+
+  const normalizedDateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3'); // Ensures MAC dates are correctly converted.
+
+  const date = new Date(normalizedDateString);
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  const suffix = (day % 10 === 1 && day !== 11) ? suffixes[1] :
+    (day % 10 === 2 && day !== 12) ? suffixes[2] :
+      (day % 10 === 3 && day !== 13) ? suffixes[3] : suffixes[0];
+
+  const formattedDate = `${day}${suffix} of ${months[monthIndex]} ${year} (${hours % 12 || 12}:${minutes}:${seconds} ${ampm})`;
+  return formattedDate;
 }
 
 export function Transactions() {
-    const { loading, error, data } = useDataQuery(getTransactions());
+  const { loading, error, data } = useDataQuery(getTransactions());
   const [sortOrder, setSortOrder] = useState("latest");
+  const [selectedOption, setSelectedOption] = useState("both");
 
   if (!data) {
     return <div><h1>Loading...</h1></div>;
@@ -46,8 +47,8 @@ export function Transactions() {
   const sortedTransactions = [...data.transactions.transactions].sort((a, b) => {
     if (sortOrder === "latest") {
       return new Date(b.time) - new Date(a.time);
-    } 
-    
+    }
+
     else {
       return new Date(a.time) - new Date(b.time);
     }
@@ -55,7 +56,10 @@ export function Transactions() {
 
   return (
     <div>
-      <h1>Transaction History</h1>
+      <div className="banner">
+        <IconList24/>
+        <h1>Transactions</h1>
+      </div>
       <div className="transaction-controls">
         <DropdownButton
           component={
@@ -82,8 +86,8 @@ export function Transactions() {
               <TableRow className="table-header">
                 <TableCell className="table-info">
                   {transaction.action == "Update" ? "Replenishment" : transaction.action}
-                  {transaction.action === "Update" && <IconArrowDown16/>}
-                  {transaction.action === "Dispense" && <IconArrowUp16/>}
+                  {transaction.action === "Update" && <IconArrowDown16 />}
+                  {transaction.action === "Dispense" && <IconArrowUp16 />}
                 </TableCell>
                 <TableCell className="tableCell"></TableCell>
                 <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>

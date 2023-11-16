@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, DropdownButton, FlyoutMenu } from "@dhis2/ui";
-import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconCheckmarkCircle24, IconEditItems24, IconDelete24, IconUndo24, IconFilter24 } from "@dhis2/ui-icons"
+import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconEditItems24, IconDelete24, IconUndo24, IconFilter24, IconUserGroup24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
 import Toastify from 'toastify-js'
@@ -119,7 +119,10 @@ export function Personnel() {
 
   if (error) {
     return (
-      <h1>Problem</h1>
+      <div>
+        <h1>Error</h1>
+        <p>No data could be loaded from the API.</p>
+      </div>
     )
   }
   if (loading) {
@@ -127,10 +130,14 @@ export function Personnel() {
       <h1>Loading..</h1>
     )
   }
+  
   if (data) {
     return (
       <div>
-        <h1>Personnel</h1>
+        <div className="banner">
+          <IconUserGroup24/>
+          <h1>Personnel</h1>
+        </div>
         <div className="controls"> {/*Controls within the page*/}
           {/* Search Input */}
           <Input className="searchbar"
@@ -142,12 +149,12 @@ export function Personnel() {
           />
           {showEditLayout ? (
             <Button className="cancel-button" onClick={() => setShowEditLayout(!showEditLayout)}>
-              <IconUndo24/>
+              <IconCross24/>
               Cancel
             </Button>
           ) : (
             <Button className="update-stock-button" onClick={() => setShowEditLayout(!showEditLayout)}>
-              <IconEditItems24 /> Remove Personnel
+              <IconEditItems24 /> Manage Personnel
             </Button>
           )}
         </div>
@@ -212,7 +219,6 @@ export function Personnel() {
               <Button className="cancel-button" onClick={() => setShowDeleteConfirmation(false)}><IconUndo24/> Cancel</Button>
             </ButtonStrip>
           </ModalContent>
-
         </Modal>
         <Button className="icon-button" type="button" onClick={(e) => {
           setModalHidden(false)
@@ -303,11 +309,11 @@ export function Personnel() {
                   clearAll();
                   setModalHidden(true)
                 }
-              }}><IconCheckmarkCircle24 /> Add Personnel</Button>
+              }}><IconFaceAdd24 /> Add Personnel</Button>
               <Button className="cancel-button" onClick={(e) => {
                 setModalHidden(true);
                 clearAll();
-              }}><IconUndo24/>Cancel</Button>
+              }}><IconCross24/>Cancel</Button>
             </ButtonStrip>
           </ModalContent>
         </Modal>

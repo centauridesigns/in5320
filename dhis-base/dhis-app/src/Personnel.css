@@ -46,14 +46,19 @@
     gap: 10px;
 }
 
+/*SECONDARY*/
 .cancel-button{
-    background-color: #6C7787 !important;
-    color: white !important;
     gap: 10px;
+    width: 114.05px !important;
+    outline: 1px solid #d32f2f;
+    outline-offset: -1px;
+    color: #d32f2f;
 }
 
 .cancel-button:hover{
-    background-color: #4A5768 !important;
+    color: white !important;
+    background-color: #c62828 !important;
+    border: 1px solid #891515 !important;
 }
 
 .delete-button {

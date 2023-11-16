@@ -4,7 +4,7 @@ import classes from "./App.module.css";
 import { Dashboard } from "./Dashboard";
 import { Navigation } from "./Navigation";
 import { Datasets } from "./Datasets";
-import { Commodities } from "./Commodities";
+import { Replenish } from "./Replenish";
 import { Dispense } from "./Dispense";
 import { Personnel } from "./Personnel";
 
@@ -118,7 +118,7 @@ function MyApp() {
       </div>
       <div className={classes.right}>
         {activePage === "Dashboard" && <Dashboard activePage={activePage} activePageHandler={activePageHandler}/>}
-        {activePage === "Commodities" && <Commodities mergedData={mergedData} />}
+        {activePage === "Replenish" && <Replenish mergedData={mergedData} />}
         {activePage === "Dispense" && <Dispense mergedData={mergedData} />}
         {activePage === "Personnel" && <Personnel />}
         {activePage === "Transactions" && <Transactions />}

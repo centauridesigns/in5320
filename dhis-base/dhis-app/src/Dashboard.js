@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu , Input} from "@dhis2/ui";
-import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24 } from "@dhis2/ui-icons"
+import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconImportItems24, IconList24, IconFilter24, IconHome24, IconDashboardWindow24 } from "@dhis2/ui-icons"
 import { getData, getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 import "./Dashboard.css";
 
@@ -58,15 +58,18 @@ export function Dashboard(props) {
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <div className="banner">
+        <IconDashboardWindow24/>
+        <h1>Dashboard</h1>
+      </div>
       <div className="card-container">
         {/*Commodities button*/}
         <div className="card-button" onClick={(e) => {
-          props.activePage === "Commodities"
-          props.activePageHandler("Commodities")
+          props.activePage === "Replenish"
+          props.activePageHandler("Replenish")
         }}>
           <Card className="nav-card">
-            <IconTextListUnordered24 />
+            <IconImportItems24 />
             <h3>Replenish</h3>
             <p>View, search, and replenish commodities.</p>
           </Card>
@@ -104,15 +107,15 @@ export function Dashboard(props) {
           props.activePageHandler("Transactions")
         }}>
           <Card className="nav-card" onClick={() => props.activePageHandler("Transactions")}>
-            <IconUserGroup24 />
-            <h3>Transaction History</h3>
-            <p>View transaction history.</p>
+            <IconList24 />
+            <h3>Transactions</h3>
+            <p>View previous transactions for dispensed and replenished commodities.</p>
           </Card>
         </div>
       </div>
         
 
-      <h3 className="transaction-h3">Commodities inventory</h3>
+      <h3 className="transaction-h3">Inventory</h3>
       <div className="controls">
         <Input className="searchbar"
           name="searchBar"
