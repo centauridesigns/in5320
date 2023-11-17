@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption } from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption, SingleSelect, SingleSelectOption} from "@dhis2/ui";
 import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24, IconList24, IconSubtractCircle16, IconAddCircle16 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 
@@ -31,10 +31,9 @@ export function Transactions() {
   const { loading, error, data } = useDataQuery(getTransactions());
   const [sortOrder, setSortOrder] = useState("latest");
   const [selectedOption, setSelectedOption] = useState("both");
+  const [sortedTransactions, setSortedTransactions] = useState([]);
 
-  if (!data) {
-    return <div><h1>Loading...</h1></div>;
-  }
+
 
   const sortByLatest = () => {
     setSortOrder("latest");
@@ -44,15 +43,40 @@ export function Transactions() {
     setSortOrder("oldest");
   };
 
-  const sortedTransactions = [...data.transactions.transactions].sort((a, b) => {
-    if (sortOrder === "latest") {
-      return new Date(b.time) - new Date(a.time);
+  const handleSelectedChange = (value) => {
+    setSelectedOption(value.selected);
+  }
+
+  useEffect(() => {
+    if (data){
+      let sT = [...data.transactions.transactions].sort((a, b) => {
+        if (sortOrder === "latest") {
+          return new Date(b.time) - new Date(a.time);
+        }
+    
+        else {
+          return new Date(a.time) - new Date(b.time);
+        }
+      });
+  
+      if (selectedOption === "both") {
+        
+      } else if (selectedOption === "replenish") {
+        sT = sT.filter(transaction =>
+          transaction.action === "Update");
+      } else if (selectedOption === "dispense") {
+        sT = sT.filter(transaction =>
+          transaction.action === "Dispense");
+      }
+  
+      setSortedTransactions(sT);
     }
 
-    else {
-      return new Date(a.time) - new Date(b.time);
-    }
-  });
+  }, [selectedOption, data, sortOrder]);
+
+  if (!data) {
+    return <div><h1>Loading...</h1></div>;
+  }
 
   return (
     <div>
@@ -77,6 +101,11 @@ export function Transactions() {
           className="sort-button">
           <IconFilter24 /> Sorting
         </DropdownButton>
+        <SingleSelect selected={selectedOption} onChange={handleSelectedChange} className="sorting-selection">
+            <SingleSelectOption className="sort-item" label="Dispense" value="dispense" />
+            <SingleSelectOption className="sort-item" label="Replenish" value="replenish" />
+            <SingleSelectOption className="sort-item" label="Both" value="both" />
+          </SingleSelect>
       </div>
 
       {sortedTransactions.map(transaction => (
