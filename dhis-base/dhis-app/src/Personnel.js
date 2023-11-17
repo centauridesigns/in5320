@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, DropdownButton, FlyoutMenu } from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, SingleSelect, SingleSelectOption, Input, Button, AlertBar, Modal, ModalContent, ModalActions, ButtonStrip, DropdownButton, FlyoutMenu, Checkbox } from "@dhis2/ui";
 import { IconCross24, IconAdd24, IconFaceAdd24, IconCheckmark24, IconEditItems24, IconDelete24, IconUndo24, IconFilter24, IconUserGroup24 } from "@dhis2/ui-icons"
 import { getPersonnel, postNewPersonnel } from "./api.js";
 import "./Personnel.css"
@@ -17,14 +17,18 @@ export function Personnel() {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [personnelArr, setPersonnelArr] = useState([]);
   const [modalHidden, setModalHidden] = useState(true);
+  const [modalDeleteHidden, setModalDeleteHidden] = useState(true);
   const [confirmed, setConfirmed] = useState(true);
   const [showEditLayout, setShowEditLayout] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedForDeletion, setSelectedForDeletion] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [sortMode, setSortMode] = useState("alphabetical");
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postNewPersonnel()
   );
+  let i = 0;
+
   const { loading, error, data } = useDataQuery(getPersonnel());
 
   const handleSearchChange = (event) => {
@@ -46,6 +50,14 @@ export function Personnel() {
   const sortHospital = (data) => {
     return data.sort((a, b) => a.affiliation.localeCompare(b.affiliation));
   }
+
+  const handleCheckboxChange = (name, isChecked) => {
+    if (isChecked) {
+      setSelectedItems(prev => [...prev, name]);
+    } else {
+      setSelectedItems(prev => prev.filter(item => item !== name));
+    }
+  };
 
   // Effect for searching. We map the table to filteredData instead of data.personnel.personnel below. Conditional rendering ensures the
   // site does not crash as the loading occurs.
@@ -73,33 +85,35 @@ export function Personnel() {
 
   // Called when removing personnel.
   const confirmPersonnelDelete = () => {
-    if (selectedForDeletion) {
-      const updatedPersonnel = data.personnel.personnel.filter(p => p.name !== selectedForDeletion.name);
+    if (selectedItems.length > 0) {
+      const updatedPersonnel = data.personnel.personnel.filter(p => !selectedItems.includes(p.name));
 
       mutate({
         personnel: updatedPersonnel,
-      }).then(function (response) {
+      }).then(response => {
         if (response.status !== "SUCCESS") {
           console.log(response);
+        } else {
+          selectedItems.forEach(item => {
+            Toastify({
+              text: selectedForDeletion.name + " was successfully deleted.",
+              duration: 3000,
+              destination: "https://github.com/apvarun/toastify-js",
+              newWindow: true,
+              close: true,
+              gravity: "top",
+              position: "center",
+              stopOnFocus: true,
+              style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+              },
+              onClick: function () { }
+            }).showToast();
+          });
         }
-      }).catch(function (response) {
-        console.log(response);
-      });
+      }).catch(console.log);
 
-      Toastify({
-        text: selectedForDeletion.name + " was successfully deleted.",
-        duration: 3000,
-        destination: "https://github.com/apvarun/toastify-js",
-        newWindow: true,
-        close: true,
-        gravity: "top",
-        position: "center", 
-        stopOnFocus: true,
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        },
-        onClick: function () { }
-      }).showToast();
+      setSelectedItems([]);
 
       clearAll();
     }
@@ -130,12 +144,12 @@ export function Personnel() {
       <h1>Loading..</h1>
     )
   }
-  
+
   if (data) {
     return (
       <div>
         <div className="banner">
-          <IconUserGroup24/>
+          <IconUserGroup24 />
           <h1>Personnel</h1>
         </div>
 
@@ -197,13 +211,14 @@ export function Personnel() {
             <IconFilter24 /> Sorting
           </DropdownButton>
         </div>
-        
+
         <div className="table">
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell><b>Personnel</b></TableCell>
                 <TableCell><b>Hospital</b></TableCell>
+                {showEditLayout && <TableCell><b>Selected</b></TableCell>}
                 {showEditLayout && <TableCell><b>‎</b></TableCell>}
               </TableRow>
             </TableHead>
@@ -212,23 +227,27 @@ export function Personnel() {
                 <TableRow>
                   <TableCell>{p.name}</TableCell>
                   <TableCell>{p.affiliation}</TableCell>
-                  {showEditLayout && <TableCell className ="remove-button-cell">
-                    <Button className="delete-button" type="button" onClick={(e) => {
-                      setSelectedForDeletion(p);
-                      setShowDeleteConfirmation(true);
-                    }}><IconDelete24 />Delete</Button>
+                  {showEditLayout && <TableCell className="remove-button-cell">
+                    <Checkbox
+                      label={""}
+                      checked={selectedItems.includes(p.name)}
+                      onChange={(e) => handleCheckboxChange(p.name, e.checked)}
+                    ></Checkbox>
                   </TableCell>}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
+        {showEditLayout && <Button destructive className="update-quantities-button" large onClick={() => setModalDeleteHidden(false)} disabled={selectedItems.length === 0}>
+          <IconDelete24 /> Remove Selected Personnel
+        </Button>}
         <Modal hide={!showDeleteConfirmation} large>
           <ModalContent>
             <p>Are you sure you want to delete <b>{selectedForDeletion?.name}</b> from the register? This cannot be undone.</p>
             <ButtonStrip>
-              <Button className="delete-button-2" destructive onClick={confirmPersonnelDelete}><IconDelete24/>Delete</Button>
-              <Button className="cancel-button" onClick={() => setShowDeleteConfirmation(false)}><IconUndo24/> Cancel</Button>
+              <Button className="delete-button-2" destructive onClick={confirmPersonnelDelete}><IconDelete24 />Delete</Button>
+              <Button className="cancel-button" onClick={() => setShowDeleteConfirmation(false)}><IconUndo24 /> Cancel</Button>
             </ButtonStrip>
           </ModalContent>
         </Modal>
@@ -321,9 +340,62 @@ export function Personnel() {
               <Button className="cancel-button" onClick={(e) => {
                 setModalHidden(true);
                 clearAll();
-              }}><IconCross24/>Cancel</Button>
+              }}><IconCross24 />Cancel</Button>
             </ButtonStrip>
           </ModalContent>
+        </Modal>
+        <Modal hide={modalDeleteHidden} medium>
+          <ModalContent>
+            <h4>Confirm Deletion</h4>
+            <h4 className="subheader">You are deleting the following personnel:</h4>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><b>Name</b></TableCell>
+                  <TableCell><b>Hospital</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {/*Mapping of commodities using the filteredData*/}
+                {selectedItems.map(item => {
+                  const personnel = data.personnel.personnel.find(p => p.name === item);
+                  return (
+                    <TableRow key={personnel.name}>
+                      <TableCell>{personnel.name}</TableCell>
+                      <TableCell>{personnel.affiliation}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </ModalContent>
+          <ModalActions>
+            <ButtonStrip end>
+              <Button className="cancel-button" medium onClick={(e) => {
+                setModalDeleteHidden(true);
+              }}><IconCross24 /> Cancel</Button>
+              <Button className="icon-button" medium destructive onClick={(e) => {
+                confirmPersonnelDelete();
+                Toastify({
+                  text: "Personnel succesfully removed.",
+                  duration: 3000,
+                  destination: "https://github.com/apvarun/toastify-js",
+                  newWindow: true,
+                  close: true,
+                  gravity: "top", // `top` or `bottom`
+                  position: "center", // `left`, `center` or `right`
+                  stopOnFocus: true, // Prevents dismissing of toast on hover
+                  style: {
+                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                  },
+                  onClick: function () { } // Callback after click
+                }).showToast();
+
+                setModalDeleteHidden(true);
+              }}>
+                <IconDelete24 /> Remove</Button>
+            </ButtonStrip>
+          </ModalActions>
         </Modal>
       </div>
     );
