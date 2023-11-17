@@ -105,7 +105,7 @@ export function Transactions() {
       <div className="search-controls">
         <MultiSelect selected={selectedOptions} onChange={handleSelectedChange} className="multibar" prefix="Displaying">
           <MultiSelectOption className="sort-item" label="Dispense" value="dispense" />
-          <MultiSelectOption className="sort-item" label="Replenish" value="update" />
+          <MultiSelectOption className="sort-item" label="Replenishment" value="update" />
         </MultiSelect>
         <DropdownButton
           component={
