@@ -8,22 +8,36 @@ function formatDate(dateString) {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const suffixes = ["th", "st", "nd", "rd"];
 
-  const normalizedDateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3'); // Ensures MAC dates are correctly converted.
+  // If the format is european, we detect it here. This part is to ensure the text is formatted correctly AND that the date is sorted correctly.
+  let normalizedDateString;
+  if (dateString.includes('.')) { // European
+    normalizedDateString = dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3');
+  } else { // American
+    normalizedDateString = dateString;
+  }
 
-  const date = new Date(normalizedDateString);
+  // Split the string, generate a date using JS.
+  const datePart = normalizedDateString.split(',')[0];
+  const date = new Date(datePart);
   const day = date.getDate();
   const monthIndex = date.getMonth();
   const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
 
+  // Split the string, generate a time using JS.
+  const timePart = dateString.split(',')[1].trim();
+  let [hours, minutes, seconds] = timePart.split(':').map(num => parseInt(num, 10));
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  minutes = minutes.toString().padStart(2, '0');
+  seconds = seconds.toString().padStart(2, '0');
+
+  // Determine suffix (1st, 2nd, 3rd, 4th) for formatted date.
   const suffix = (day % 10 === 1 && day !== 11) ? suffixes[1] :
     (day % 10 === 2 && day !== 12) ? suffixes[2] :
       (day % 10 === 3 && day !== 13) ? suffixes[3] : suffixes[0];
 
-  const formattedDate = `${day}${suffix} of ${months[monthIndex]} ${year} (${hours % 12 || 12}:${minutes}:${seconds} ${ampm})`;
+  // Generate the formatted date.
+  const formattedDate = `${day}${suffix} of ${months[monthIndex]} ${year} (${hours}:${minutes}:${seconds} ${ampm})`;
   return formattedDate;
 }
 
@@ -47,24 +61,39 @@ export function Transactions() {
 
   useEffect(() => {
     console.log('Selected Options:', selectedOptions);
-
+  
     if (data) {
-      let sT = [...data.transactions.transactions].sort((a, b) => {
-        return sortOrder === "latest"
-          ? new Date(b.time) - new Date(a.time)
-          : new Date(a.time) - new Date(b.time);
+      // Generate standardized date formats for all dates.
+      const standardizedTransactions = data.transactions.transactions.map(transaction => {
+        const standardizedDate = standardizeDateFormat(transaction.time);
+        return {...transaction, standardizedDate};
       });
-
+  
+      // Sort the transactions based on the provided option (latest, oldest).
+      standardizedTransactions.sort((a, b) => {
+        const dateA = new Date(a.standardizedDate).getTime();
+        const dateB = new Date(b.standardizedDate).getTime();
+        return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
+      });
+  
+      // Filter the transactions based on type by cross-checking it with the action.
+      let filteredTransactions = standardizedTransactions;
       if (selectedOptions.length > 0) {
-        sT = sT.filter(transaction => selectedOptions.includes(transaction.action.toLowerCase()));
+        filteredTransactions = filteredTransactions.filter(transaction => 
+          selectedOptions.includes(transaction.action.toLowerCase())
+        );
       }
 
-      setSortedTransactions(sT);
+      setSortedTransactions(filteredTransactions);
     }
   }, [selectedOptions, data, sortOrder]);
 
-  if (!data) {
-    return <div><h1>Loading...</h1></div>;
+  function standardizeDateFormat(dateString) {
+    if (dateString.includes('.')) {
+      return dateString.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$2/$1/$3');
+    } else {
+      return dateString;
+    }
   }
 
   return (
@@ -122,7 +151,7 @@ export function Transactions() {
                     <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
                     {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
                     {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
-                    <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
+                    <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Restocked By'}</b></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
