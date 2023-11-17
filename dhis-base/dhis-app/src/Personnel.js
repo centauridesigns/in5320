@@ -20,7 +20,6 @@ export function Personnel() {
   const [modalDeleteHidden, setModalDeleteHidden] = useState(true);
   const [confirmed, setConfirmed] = useState(true);
   const [showEditLayout, setShowEditLayout] = useState(false);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedForDeletion, setSelectedForDeletion] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortMode, setSortMode] = useState("alphabetical");
@@ -128,7 +127,6 @@ export function Personnel() {
     setShowEditLayout(false);
     setSelectedForDeletion(null);
     setSelectedForDeletion(null);
-    setShowDeleteConfirmation(false);
   }
 
   if (error) {
@@ -242,15 +240,6 @@ export function Personnel() {
         {showEditLayout && <Button destructive className="update-quantities-button" large onClick={() => setModalDeleteHidden(false)} disabled={selectedItems.length === 0}>
           <IconDelete24 /> Remove Selected Personnel
         </Button>}
-        <Modal hide={!showDeleteConfirmation} large>
-          <ModalContent>
-            <p>Are you sure you want to delete <b>{selectedForDeletion?.name}</b> from the register? This cannot be undone.</p>
-            <ButtonStrip>
-              <Button className="delete-button-2" destructive onClick={confirmPersonnelDelete}><IconDelete24 />Delete</Button>
-              <Button className="cancel-button" onClick={() => setShowDeleteConfirmation(false)}><IconUndo24 /> Cancel</Button>
-            </ButtonStrip>
-          </ModalContent>
-        </Modal>
         <Modal hide={modalHidden} large>
           <ModalContent>
             <h4>Add: Personnel</h4>
