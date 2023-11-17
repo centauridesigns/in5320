@@ -26,7 +26,6 @@ export function Personnel() {
   const [mutate, { mutateLoading, mutateError }] = useDataMutation(
     postNewPersonnel()
   );
-  let i = 0;
 
   const { loading, error, data } = useDataQuery(getPersonnel());
 

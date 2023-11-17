@@ -71,3 +71,8 @@
 .transaction-h3{
     margin-top: 60px;
 }
+
+.multibar {
+    flex: 1 !important;
+    width: 100% !important;
+}

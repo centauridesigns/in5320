@@ -30,10 +30,8 @@ function formatDate(dateString) {
 export function Transactions() {
   const { loading, error, data } = useDataQuery(getTransactions());
   const [sortOrder, setSortOrder] = useState("latest");
-  const [selectedOption, setSelectedOption] = useState("both");
+  const [selectedOptions, setSelectedOptions] = useState(["dispense", "update"]);
   const [sortedTransactions, setSortedTransactions] = useState([]);
-
-
 
   const sortByLatest = () => {
     setSortOrder("latest");
@@ -44,35 +42,26 @@ export function Transactions() {
   };
 
   const handleSelectedChange = (value) => {
-    setSelectedOption(value.selected);
+    setSelectedOptions(value.selected);
   }
 
   useEffect(() => {
-    if (data){
+    console.log('Selected Options:', selectedOptions);
+
+    if (data) {
       let sT = [...data.transactions.transactions].sort((a, b) => {
-        if (sortOrder === "latest") {
-          return new Date(b.time) - new Date(a.time);
-        }
-    
-        else {
-          return new Date(a.time) - new Date(b.time);
-        }
+        return sortOrder === "latest"
+          ? new Date(b.time) - new Date(a.time)
+          : new Date(a.time) - new Date(b.time);
       });
-  
-      if (selectedOption === "both") {
-        
-      } else if (selectedOption === "replenish") {
-        sT = sT.filter(transaction =>
-          transaction.action === "Update");
-      } else if (selectedOption === "dispense") {
-        sT = sT.filter(transaction =>
-          transaction.action === "Dispense");
+
+      if (selectedOptions.length > 0) {
+        sT = sT.filter(transaction => selectedOptions.includes(transaction.action.toLowerCase()));
       }
-  
+
       setSortedTransactions(sT);
     }
-
-  }, [selectedOption, data, sortOrder]);
+  }, [selectedOptions, data, sortOrder]);
 
   if (!data) {
     return <div><h1>Loading...</h1></div>;
@@ -81,10 +70,14 @@ export function Transactions() {
   return (
     <div>
       <div className="banner">
-        <IconList24/>
+        <IconList24 />
         <h1>Transactions</h1>
       </div>
-      <div className="transaction-controls">
+      <div className="search-controls">
+        <MultiSelect selected={selectedOptions} onChange={handleSelectedChange} className="multibar" prefix="Displaying">
+          <MultiSelectOption className="sort-item" label="Dispense" value="dispense" />
+          <MultiSelectOption className="sort-item" label="Replenish" value="update" />
+        </MultiSelect>
         <DropdownButton
           component={
             <FlyoutMenu>
@@ -101,51 +94,55 @@ export function Transactions() {
           className="sort-button">
           <IconFilter24 /> Sorting
         </DropdownButton>
-        <SingleSelect selected={selectedOption} onChange={handleSelectedChange} className="sorting-selection">
-            <SingleSelectOption className="sort-item" label="Dispense" value="dispense" />
-            <SingleSelectOption className="sort-item" label="Replenish" value="replenish" />
-            <SingleSelectOption className="sort-item" label="Both" value="both" />
-          </SingleSelect>
       </div>
 
-      {sortedTransactions.map(transaction => (
-        <div className="table" key={transaction.id}>
-          <Table>
-            <TableHead>
-              <TableRow className="table-header">
-                <TableCell className="table-info">
-                  {transaction.action == "Update" ? "Replenishment" : transaction.action}
-                  {/*transaction.action == "Update" && <Tag className="pos-tag" positive>+</Tag>*/}
-                  {/*transaction.action == "Dispense" && <Tag className="neg-tag" negative>-</Tag>*/}
-                  {transaction.action === "Update" && <IconAddCircle16 />}
-                  {transaction.action === "Dispense" && <IconSubtractCircle16 />}
-                </TableCell>
-                <TableCell className="tableCell"></TableCell>
-                <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
-                {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
-                {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {transaction.commodities.map(commodity => (
-                <TableRow key={commodity.id}>
-                  <TableCell className="tableCell">{commodity.name}</TableCell>
-                  <TableCell className="indicator">
-                    {transaction.action === "Update" && <Tag className="pos-tag" positive>+{commodity.newValue - commodity.oldValue}</Tag>}
-                    {transaction.action === "Dispense" && <Tag className="neg-tag" negative>{commodity.newValue - commodity.oldValue}</Tag>}
-                  </TableCell>
-                  {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
-                  {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      {selectedOptions.length === 0 &&
+        <div>
+          <p className="desc">Please select transaction type(s) to show. </p>
+        </div>}
+
+      {selectedOptions.length > 0 &&
+        <div>
+          {sortedTransactions.map(transaction => (
+            <div className="table" key={transaction.id}>
+              <Table>
+                <TableHead>
+                  <TableRow className="table-header">
+                    <TableCell className="table-info">
+                      {transaction.action == "Update" ? "Replenishment" : transaction.action}
+                      {/*transaction.action == "Update" && <Tag className="pos-tag" positive>+</Tag>*/}
+                      {/*transaction.action == "Dispense" && <Tag className="neg-tag" negative>-</Tag>*/}
+                      {transaction.action === "Update" && <IconAddCircle16 />}
+                      {transaction.action === "Dispense" && <IconSubtractCircle16 />}
+                    </TableCell>
+                    <TableCell className="tableCell"></TableCell>
+                    <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
+                    {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
+                    {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
+                    <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {transaction.commodities.map(commodity => (
+                    <TableRow key={commodity.id}>
+                      <TableCell className="tableCell">{commodity.name}</TableCell>
+                      <TableCell className="indicator">
+                        {transaction.action === "Update" && <Tag className="pos-tag" positive>+{commodity.newValue - commodity.oldValue}</Tag>}
+                        {transaction.action === "Dispense" && <Tag className="neg-tag" negative>{commodity.newValue - commodity.oldValue}</Tag>}
+                      </TableCell>
+                      {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
+                      {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ))}
         </div>
-      ))}
+      }
     </div>
   );
 }
