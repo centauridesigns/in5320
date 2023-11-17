@@ -254,7 +254,7 @@ export function Dispense(props) {
             } else {
               setModalHidden(false);
             }
-          }}><IconCheckmarkCircle24 />Verify Selection</Button>
+          }}><IconCheckmarkCircle24 />Dispense Selected Commodities</Button>
         </div>
 
         <Modal hide={modalHidden} medium>

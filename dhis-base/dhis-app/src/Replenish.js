@@ -250,7 +250,7 @@ export function Replenish(props) {
         </Table>
       </div>
       <Button primary disabled={editDisabled} className="update-quantities-button" large onClick={(e) => { setModalHidden(false); }}>
-        <IconCheckmarkCircle24 /> Update All Quantities
+        <IconCheckmarkCircle24 /> Replenish Selected Commodities
       </Button>
       <Modal hide={modalHidden} medium>
         <ModalContent>
