@@ -37,3 +37,5 @@ Although the application works as intended, there are a few things to remark on.
 In a perfect solution, all pages with an overview should refresh their contents after a change. This includes replenishing commodities, and adding and removing personnel. Because of time constraints and struggles with the code environment, only deletion of personnel leads to a live refresh. For replenishing commodities, a traditional F5 refresh is required.
 
 Users can also input a higher number of commodities than available when dispensing. This leads to unwarranted behavior. Because of our current implementation, ensuring this check is made properly requires a state array that is complex to design.
+
+Another relevant aspect is the inconsistent usage of warning messages when input fields are left unfiled. Sometimes this is an alert-bar, other times the buttons are disabled, and other times it's highlighting input fields red. This comes down to specific fields being easier to implement certain warning functionality on, whilst others require heavy state manipulation.
