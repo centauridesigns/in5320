@@ -1,0 +1,78 @@
+.tableCell {
+    width: 33%;
+}
+
+.table-header {
+    background-color: #D5DDE5;
+    color: #404B5A;
+    font-weight: bold;
+}
+
+.table-info {
+    display: flex;
+    gap: 10px !important;
+}
+
+.table-date {
+    font-style: italic;
+    text-align: right;
+}
+
+.card-container {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.nav-card {
+    min-height: 50px;
+    padding: 20px;
+}
+
+.nav-card:hover {
+    background-color: #F3F5F7;
+}
+
+.nav-card.h3 {
+    font-weight: bold;
+}
+
+.card-button {
+    cursor: pointer;
+    flex: 1;
+}
+
+.sort-button {
+    gap: 10px;
+}
+
+.pos-tag {
+    color: green !important;
+    align-items: center !important;
+}
+
+.neg-tag {
+    color: red !important;
+    vertical-align:middle !important;
+}
+
+.transaction-controls {
+    display: flex;
+    gap: 10px;
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.sort-item:hover {
+    background-color: #F3F5F7 !important;
+}
+
+.transaction-h3{
+    margin-top: 60px;
+}
+
+.multibar {
+    flex: 1 !important;
+    width: 100% !important;
+}

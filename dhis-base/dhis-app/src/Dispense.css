@@ -1,0 +1,125 @@
+.section {
+    flex: 1;
+}
+
+.remove-button {
+    flex: 0;
+}
+
+.empty-title {
+    height: 5px;
+}
+
+.title {
+    font-size: 17px;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+.desc {
+    margin-top: 5px;
+    font-size: 14px;
+    color: gray;
+}
+
+.controls {
+    align-items: center;
+    /* background-color: #FFFFFF;
+    padding: 10px; */
+}
+
+.controls-cond {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls-select {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+
+.controls-button {
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.button-section {
+    display: flex;
+    gap: 10px !important;
+    margin-bottom: 5px;
+}
+
+.confirm-button {
+    gap: 10px;
+    outline: 1px solid #0d47a1;
+    outline-offset: -1px;
+    color: #0d47a1 !important;
+}
+
+.confirm-button:hover{
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+}
+
+.cancel-button{
+    gap: 10px;
+    width: 114.05px !important;
+    outline: 1px solid #d32f2f;
+    outline-offset: -1px;
+    color: #d32f2f !important;
+}
+
+.cancel-button:hover{
+    color: white !important;
+    background-color: #c62828 !important;
+    border: 1px solid #891515 !important;
+}
+
+.verify-button {
+    margin-top: 1rem;
+    gap: 10px;
+}
+
+.verify-small-button {
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+    gap: 10px;
+}
+
+.input-button-wrapper {
+    flex: 1;
+    align-items: center;
+    /* vertical alignment */
+}
+
+.icon-button {
+    gap: 10px;
+}
+
+.commodity-controls {
+    margin-bottom: 100px;
+}
+
+hr.dispense-divider {
+    margin-top: 50px;
+    margin-bottom: -50px;
+}
+
+hr.date-divider {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+h4.subheader {
+    font-weight: normal;
+}

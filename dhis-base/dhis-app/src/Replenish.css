@@ -1,0 +1,110 @@
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.searchbar {
+    flex: 1 !important;
+}
+
+.searchbar .dropdown {
+    flex-grow: 1 !important;
+}
+
+.search-controls {
+    display: flex;
+    margin-bottom: 10px;
+    gap: 10px;
+    align-items: center;
+}
+
+.sort-item:hover {
+    background-color: #F3F5F7 !important;
+}
+
+.update-stock-button {
+    width: 300px !important;
+    gap: 10px;
+}
+
+.confirm-button {
+    gap: 10px;
+}
+
+.confirm-button {
+    gap: 10px;
+    outline: 1px solid #0d47a1;
+    color: #0d47a1 !important;
+}
+
+.confirm-button:hover{
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+}
+
+.cancel-button {
+    gap: 10px;
+}
+
+.exit-button {
+    gap: 10px;
+    outline: 1px solid #d32f2f !important;
+    outline-offset: -1px;
+    color: #d32f2f !important;
+}
+
+.exit-button:hover {
+    color: white !important;
+    background-color: #c62828 !important;
+    border: 1px solid #891515 !important;
+}
+
+.update-quantities-button {
+    margin-bottom: 1rem;
+    gap: 10px;
+}
+
+.verify-button:disabled {
+    background-color: #90caf9 !important;
+}
+
+.verify-small-button {
+    color: white !important;
+    background-color: #0d47a1 !important;
+    border: 1px solid #093371 !important;
+    gap: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.old-item {
+    color: grey !important;
+}
+
+.updaterSelect {
+    margin-top: 10px;
+}
+
+h4.subheader {
+    font-weight: normal;
+}
+
+.banner {
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.manage-controls {
+    display: flex;
+    gap: 10px;
+}
