@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
-import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption, SingleSelect, SingleSelectOption} from "@dhis2/ui";
+import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption, SingleSelect, SingleSelectOption, Input} from "@dhis2/ui";
 import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24, IconList24, IconSubtractCircle16, IconAddCircle16 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 
@@ -46,6 +46,7 @@ export function Transactions() {
   const [sortOrder, setSortOrder] = useState("latest");
   const [selectedOptions, setSelectedOptions] = useState(["dispense", "update"]);
   const [sortedTransactions, setSortedTransactions] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const sortByLatest = () => {
     setSortOrder("latest");
@@ -76,17 +77,17 @@ export function Transactions() {
         return sortOrder === "latest" ? dateB - dateA : dateA - dateB;
       });
   
-      // Filter the transactions based on type by cross-checking it with the action.
-      let filteredTransactions = standardizedTransactions;
-      if (selectedOptions.length > 0) {
-        filteredTransactions = filteredTransactions.filter(transaction => 
-          selectedOptions.includes(transaction.action.toLowerCase())
-        );
-      }
+      // Filter the transactions based on type by cross-checking it with the action, then verify that the search term matches (assuming it exists).
+      let filteredTransactions = standardizedTransactions.filter(transaction =>
+        selectedOptions.includes(transaction.action.toLowerCase()) &&
+        transaction.commodities.some(commodity => 
+          commodity.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
 
       setSortedTransactions(filteredTransactions);
     }
-  }, [selectedOptions, data, sortOrder]);
+  }, [selectedOptions, data, sortOrder, searchTerm]);
 
   function standardizeDateFormat(dateString) {
     if (dateString.includes('.')) {
@@ -102,7 +103,11 @@ export function Transactions() {
         <IconList24 />
         <h1>Transactions</h1>
       </div>
+
+      {/* Search controls */}
       <div className="search-controls">
+        <Input className="searchbar" placeholder="Search for commodities" value={searchTerm} onChange={(event) => setSearchTerm(event.value)}>
+        </Input>
         <MultiSelect selected={selectedOptions} onChange={handleSelectedChange} className="multibar" prefix="Displaying">
           <MultiSelectOption className="sort-item" label="Dispense" value="dispense" />
           <MultiSelectOption className="sort-item" label="Replenishment" value="update" />
@@ -125,11 +130,13 @@ export function Transactions() {
         </DropdownButton>
       </div>
 
+      {/* If nothing is selected, display call to action.*/}
       {selectedOptions.length === 0 &&
         <div>
           <p className="desc">Please select transaction type(s) to show. </p>
         </div>}
 
+      {/* If something is selected, display the table.*/}
       {selectedOptions.length > 0 &&
         <div>
           {sortedTransactions.map(transaction => (
