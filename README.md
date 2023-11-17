@@ -36,6 +36,4 @@ Although the application works as intended, there are a few things to remark on.
 
 In a perfect solution, all pages with an overview should refresh their contents after a change. This includes replenishing commodities, and adding and removing personnel. Because of time constraints and struggles with the code environment, only deletion of personnel leads to a live refresh. For replenishing commodities, a traditional F5 refresh is required.
 
-Currently, it is not possible to search the list of Transactions using commodities, which is probably quite a helpful functionality. The sorting and handling here is already somewhat complex and requires a lot of time to manage.
-
 Users can also input a higher number of commodities than available when dispensing. This leads to unwarranted behavior. Because of our current implementation, ensuring this check is made properly requires a state array that is complex to design.
