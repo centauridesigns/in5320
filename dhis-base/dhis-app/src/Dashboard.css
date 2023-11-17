@@ -49,10 +49,12 @@
 
 .pos-tag {
     color: green !important;
+    align-items: center !important;
 }
 
 .neg-tag {
     color: red !important;
+    vertical-align:middle !important;
 }
 
 .transaction-controls {

@@ -138,7 +138,32 @@ export function Personnel() {
           <IconUserGroup24/>
           <h1>Personnel</h1>
         </div>
-        <div className="controls"> {/*Controls within the page*/}
+
+        <div className="manage-controls">
+          <div className="add">
+            <Button className="icon-button" type="button" onClick={(e) => {
+              setModalHidden(false)
+            }}><IconFaceAdd24 /> Add Personnel</Button>
+            <p className="desc">Add another personnel.</p>
+          </div>
+
+          <div className="manage">
+            {showEditLayout ? (
+              <Button secondary className="exit-button" onClick={() => setShowEditLayout(!showEditLayout)}>
+                <IconCross24 />
+                Exit Manage
+              </Button>
+            ) : (
+              <Button className="icon-button" type="button" onClick={() => setShowEditLayout(!showEditLayout)}>
+                <IconEditItems24 /> Manage Personnel
+              </Button>
+            )}
+            {showEditLayout && <p className="desc">Exit the management mode.</p>}
+            {!showEditLayout && <p className="desc">Manage existing personnel.</p>}
+          </div>
+        </div>
+
+        <div className="search-controls">
           {/* Search Input */}
           <Input className="searchbar"
             name="searchBar"
@@ -147,19 +172,6 @@ export function Personnel() {
             value={searchTerm}
             onChange={handleSearchChange}
           />
-          {showEditLayout ? (
-            <Button className="cancel-button" onClick={() => setShowEditLayout(!showEditLayout)}>
-              <IconCross24/>
-              Cancel
-            </Button>
-          ) : (
-            <Button className="update-stock-button" onClick={() => setShowEditLayout(!showEditLayout)}>
-              <IconEditItems24 /> Manage Personnel
-            </Button>
-          )}
-        </div>
-
-        <div className="sorting-controls">
           <DropdownButton
             component={
               <FlyoutMenu>
@@ -220,10 +232,6 @@ export function Personnel() {
             </ButtonStrip>
           </ModalContent>
         </Modal>
-        <Button className="icon-button" type="button" onClick={(e) => {
-          setModalHidden(false)
-        }}><IconFaceAdd24 /> Add Personnel</Button>
-        <p className="desc">Add another personnel.</p>
         <Modal hide={modalHidden} large>
           <ModalContent>
             <h4>Add: Personnel</h4>

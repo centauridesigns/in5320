@@ -179,6 +179,7 @@ export function Replenish(props) {
         <IconImportItems24/>
         <h1>Replenish</h1>
       </div>
+
       {showIntAlert && (
         <AlertBar
           duration={200}
@@ -187,7 +188,7 @@ export function Replenish(props) {
           All inputs need to be positive integers.
         </AlertBar>
       )}
-      <div className="controls">
+      <div className="search-controls">
         <Input className="searchbar"
           name="searchBar"
           type="text"
@@ -195,8 +196,6 @@ export function Replenish(props) {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-      </div>
-      <div className="sorting-controls">
         <DropdownButton
           component={
             <FlyoutMenu>
@@ -249,10 +248,10 @@ export function Replenish(props) {
             ))}
           </TableBody>
         </Table>
-        <Button primary disabled={editDisabled} className="verify-button" large onClick={(e) => { setModalHidden(false); }}>
-          <IconCheckmarkCircle24 /> Update All Quantities
-        </Button>
       </div>
+      <Button primary disabled={editDisabled} className="update-quantities-button" large onClick={(e) => { setModalHidden(false); }}>
+        <IconCheckmarkCircle24 /> Update All Quantities
+      </Button>
       <Modal hide={modalHidden} medium>
         <ModalContent>
           <h4>Confirm Replenishment</h4>

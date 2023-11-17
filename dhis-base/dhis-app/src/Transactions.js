@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import { Menu, MenuItem, Table, TableHead, TableRow, TableBody, TableCell, Tag, Card, DropdownButton, FlyoutMenu, MultiSelect, MultiSelectOption } from "@dhis2/ui";
-import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24, IconList24 } from "@dhis2/ui-icons"
+import { IconUserGroup24, IconTextListUnordered24, IconExportItems24, IconArrowUp16, IconArrowDown16, IconFilter24, IconList24, IconSubtractCircle16, IconAddCircle16 } from "@dhis2/ui-icons"
 import { getPersonnel, getTransactions, postNewPersonnel } from "./api.js";
 
 function formatDate(dateString) {
@@ -86,29 +86,31 @@ export function Transactions() {
               <TableRow className="table-header">
                 <TableCell className="table-info">
                   {transaction.action == "Update" ? "Replenishment" : transaction.action}
-                  {transaction.action === "Update" && <IconArrowDown16 />}
-                  {transaction.action === "Dispense" && <IconArrowUp16 />}
+                  {/*transaction.action == "Update" && <Tag className="pos-tag" positive>+</Tag>*/}
+                  {/*transaction.action == "Dispense" && <Tag className="neg-tag" negative>-</Tag>*/}
+                  {transaction.action === "Update" && <IconAddCircle16 />}
+                  {transaction.action === "Dispense" && <IconSubtractCircle16 />}
                 </TableCell>
                 <TableCell className="tableCell"></TableCell>
                 <TableCell className="table-date">{`${formatDate(transaction.time)}`}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed Commodity' : 'Stocked Commodity'}</b></TableCell>
-                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
                 {transaction.action === "Dispense" && <TableCell className="tableCell"><b>Amount Dispensed</b></TableCell>}
                 {transaction.action === "Update" && <TableCell className="tableCell"><b>Amount Restocked</b></TableCell>}
+                <TableCell className="tableCell"><b>{transaction.action === "Dispense" ? 'Dispensed To' : 'Updated By'}</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {transaction.commodities.map(commodity => (
                 <TableRow key={commodity.id}>
                   <TableCell className="tableCell">{commodity.name}</TableCell>
-                  {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
-                  {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
                   <TableCell className="indicator">
                     {transaction.action === "Update" && <Tag className="pos-tag" positive>+{commodity.newValue - commodity.oldValue}</Tag>}
                     {transaction.action === "Dispense" && <Tag className="neg-tag" negative>{commodity.newValue - commodity.oldValue}</Tag>}
                   </TableCell>
+                  {transaction.action === "Dispense" && <TableCell className="tableCell">{transaction.recipient}</TableCell>}
+                  {transaction.action === "Update" && <TableCell className="tableCell">{transaction.updatedBy}</TableCell>}
                 </TableRow>
               ))}
             </TableBody>

@@ -116,7 +116,7 @@ export function Dashboard(props) {
         
 
       <h3 className="transaction-h3">Inventory</h3>
-      <div className="controls">
+      <div className="search-controls">
         <Input className="searchbar"
           name="searchBar"
           type="text"
@@ -124,8 +124,6 @@ export function Dashboard(props) {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-      </div>
-      <div className="sorting-controls">
         <DropdownButton
           component={
             <FlyoutMenu>
